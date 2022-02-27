@@ -12,7 +12,7 @@ def run_game():
     # flag to see if player exited
     crashed = False
     # setup for pet frame alternation every second
-    current_img = tama_pet
+    current_img = tama_pet_small
     ALT = pygame.USEREVENT + 1
     pygame.time.set_timer(ALT, 1000)
 
@@ -25,24 +25,20 @@ def run_game():
             # alternate image, alpha sets transparency
             if event.type == ALT:
                 current_img.set_alpha(0)
-                if current_img == tama_pet:
-                    current_img = tama_pet1
+                if current_img == tama_pet_small:
+                    current_img = tama_pet1_small
                     current_img.set_alpha(255)
                 else:
-                    current_img = tama_pet
+                    current_img = tama_pet_small
                     current_img.set_alpha(255)
         # display background and pet
         display.fill(sky_blue)
-        pet(current_img, display_width * .22, display_height * .17)
+        pet(current_img, display_width * .27, display_height * .27)
 
-        eat_small = pygame.transform.scale(eat_pic, (120, 80))
-        eat(eat_small, 50, 20)
-        sleep_small = pygame.transform.scale(sleep_pic, (90, 80))
-        sleep(sleep_small, 245, 20)
-        brush_small = pygame.transform.scale(brush_pic, (90, 80))
-        brush(brush_small, 465, 20)
-        ball_small = pygame.transform.scale(ball_pic, (90, 85))
-        ball(ball_small, 655, 20)
+        eat(eat_small, 50, 60)
+        sleep(sleep_small, 245, 60)
+        brush(brush_small, 465, 60)
+        ball(ball_small, 655, 60)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
@@ -120,12 +116,22 @@ if __name__ == '__main__':
     pygame.display.set_caption("tamagotchi demo")
     # running timer since startup. may be useful for saves
     clock = pygame.time.Clock()
-    # loading tamagotchi images
+    # loading tamagotchi images and resize
     tama_pet = pygame.image.load('tamarabbit.png')
+    tama_pet_small = pygame.transform.scale(tama_pet, (350, 350))
     tama_pet1 = pygame.image.load('tamarabbit1.png')
-    # load care images
+    tama_pet1_small = pygame.transform.scale(tama_pet1, (350, 350))
+
+    # load care images and resize
     eat_pic = pygame.image.load('eat.png')
+    eat_small = pygame.transform.scale(eat_pic, (110, 70))
+
     sleep_pic = pygame.image.load('sleep.png')
+    sleep_small = pygame.transform.scale(sleep_pic, (80, 70))
+
     brush_pic = pygame.image.load('brush.png')
+    brush_small = pygame.transform.scale(brush_pic, (80, 70))
+
     ball_pic = pygame.image.load('ball.png')
+    ball_small = pygame.transform.scale(ball_pic, (80, 75))
     main()
