@@ -1,16 +1,30 @@
 import pygame
 import pygame_menu
 import os
-os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 def main():
     pygame.init()
     menu()
 
-def run_game():
+class Pet:
+    def __init__(self, tamaName, tamaAge, tamaHunger, tamaSleep, tamaBrush, tamaPlay):
+        self.name = tamaName
+        self.age = tamaAge
+        self.hunger = tamaHunger
+        self.sleep = tamaSleep
+        self.brush = tamaBrush
+        self.play = tamaPlay
+
+
+def run_game(tamaData):
     # flag to see if player exited
     crashed = False
+
+    # create tama instance
+    tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]), int(tamaData[5]))
+
     # setup for pet frame alternation every second
     current_img = tama_pet_small
     ALT = pygame.USEREVENT + 1
@@ -54,6 +68,13 @@ def run_game():
         pygame.draw.circle(display, (255, 255, 255), (600, 530), 35)
         pygame.draw.circle(display, (0, 0, 0), (600, 530), 35, width=5)
 
+        white = (255, 255, 255)
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render(tama.name, True, white, sky_blue)
+        textRect = text.get_rect()
+        textRect.center = (100, 20)
+        display.blit(text, textRect)
+
         # update display, set fps to 60
         pygame.display.update()
         clock.tick(60)
@@ -62,50 +83,65 @@ def run_game():
     quit()
 
     # displays tamagotchi pet image. params are image and position
-
-
 def pet(p, x, y):
     display.blit(p, (x, y))
 
     # displays care functions, params are image and position
-
-
 def eat(p, x, y):
     display.blit(p, (x, y))
-
 
 def sleep(p, x, y):
     display.blit(p, (x, y))
 
-
 def brush(p, x, y):
     display.blit(p, (x, y))
-
 
 def ball(p, x, y):
     display.blit(p, (x, y))
 
 def menu():
-
+    # do if new game button is pressed
     def new_game():
         pygame_menu.events.EXIT
-        run_game()
 
+        run_game([textinp.get_value(), 0, 0, 0, 0, 0])
+
+    def initializeSave(fileName):
+        print(fileName)
+
+    # do if load game button is pressed
     def load_game():
-        # Do the job here !
-        pass
+        # get rid of main menu
+        pygame_menu.events.EXIT
+        # set up new level select menu
+        level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
-    menu = pygame_menu.Menu('Welcome', display_width, display_height,
-                           theme=pygame_menu.themes.THEME_SOLARIZED)
+        buttons = []
+
+        # read in save game files, make buttons for them, read in data from each
+        for count, file in enumerate(os.listdir("./game_saves")):
+            open(('./game_saves/' + file), 'r', encoding='utf8').readline().split()
+            buttons.append(level_select.add.button(file.rsplit('.', 1)[0]))
+
+        for i in range(len(buttons)):
+            buttons[i].set_onreturn(initializeSave(buttons[i].get_title()))
+
+        level_select.add.vertical_margin(20)
+        level_select.add.button('Back', menu)
+        level_select.mainloop(display)
+
+    # set up main menu
+    pygame_menu.events.EXIT
+    menu = pygame_menu.Menu('Main Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
     menu.add.image('./ascii_logo_noBackground.png')
-    menu.add.text_input('Name:  ', default='John Doe')
+    menu.add.vertical_margin(20)
+    textinp = menu.add.text_input('Pet Name:  ')
     menu.add.button('Start New Game', new_game)
     menu.add.button('Load Game', load_game)
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
     menu.mainloop(display)
-
 
 if __name__ == '__main__':
     sky_blue = (173, 216, 230)
@@ -113,7 +149,7 @@ if __name__ == '__main__':
     display_width = 800
     display_height = 600
     display = pygame.display.set_mode((display_width, display_height))
-    pygame.display.set_caption("tamagotchi demo")
+    pygame.display.set_caption("Tamagotchi")
     # running timer since startup. may be useful for saves
     clock = pygame.time.Clock()
     # loading tamagotchi images and resize
