@@ -56,19 +56,10 @@ def run_game(tamaData):
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
-        # Left button
-        pygame.draw.circle(display, (255, 255, 255), (200, 530), 35)
-        pygame.draw.circle(display, (0, 0, 0), (200, 530), 35, width=5)
+        button(200, 530, 35, grey, white)
+        button(400, 530, 35, grey, white)
+        button(600, 530, 35, grey, white)
 
-        # middle button
-        pygame.draw.circle(display, (255, 255, 255), (400, 530), 35)
-        pygame.draw.circle(display, (0, 0, 0), (400, 530), 35, width=5)
-
-        # right button
-        pygame.draw.circle(display, (255, 255, 255), (600, 530), 35)
-        pygame.draw.circle(display, (0, 0, 0), (600, 530), 35, width=5)
-
-        white = (255, 255, 255)
         font = pygame.font.Font('freesansbold.ttf', 32)
         text = font.render(tama.name, True, white, sky_blue)
         textRect = text.get_rect()
@@ -98,6 +89,16 @@ def brush(p, x, y):
 
 def ball(p, x, y):
     display.blit(p, (x, y))
+
+def button(x, y, r, ic, ac):
+    mouse = pygame.mouse.get_pos()
+
+    if x-r <= mouse[0] <= x+r and y-r < mouse[1] < y+r:
+        pygame.draw.circle(display, ac, (x, y), r)
+        pygame.draw.circle(display, black, (x, y), r, width=5)
+    else:
+        pygame.draw.circle(display, ic, (x, y), r)
+        pygame.draw.circle(display, black, (x, y), r, width=5)
 
 def menu():
     # do if new game button is pressed
@@ -143,8 +144,12 @@ def menu():
 
     menu.mainloop(display)
 
+
 if __name__ == '__main__':
     sky_blue = (173, 216, 230)
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    grey = (240, 240, 240)
     # window setup
     display_width = 800
     display_height = 600
