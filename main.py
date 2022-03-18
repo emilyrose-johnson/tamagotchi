@@ -49,16 +49,21 @@ def run_game(tamaData):
         display.fill(sky_blue)
         pet(current_img, display_width * .27, display_height * .27)
 
-        eat(eat_small, 50, 60)
-        sleep(sleep_small, 245, 60)
-        brush(brush_small, 465, 60)
-        ball(ball_small, 655, 60)
+        eat(eat_small, 45, 60)
+        sleep(sleep_small, 260, 60)
+        brush(brush_small, 460, 60)
+        ball(ball_small, 660, 60)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
-        button(200, 530, 35, grey, white)
-        button(400, 530, 35, grey, white)
-        button(600, 530, 35, grey, white)
+        button(200, 530, 35, grey, white, action="left")
+        button(400, 530, 35, grey, white, action="middle")
+        button(600, 530, 35, grey, white, action="right")
+
+        # Health bar display
+        health_bars(tama.hunger, tama.sleep, tama.brush, tama.play)
+        # updates the hunger bar to decrease by 5% every second?
+        tama.hunger -= .05
 
         font = pygame.font.Font('freesansbold.ttf', 32)
         text = font.render(tama.name, True, white, sky_blue)
@@ -69,15 +74,16 @@ def run_game(tamaData):
         # update display, set fps to 60
         pygame.display.update()
         clock.tick(60)
+
     # exit code
     pygame.quit()
     quit()
 
-    # displays tamagotchi pet image. params are image and position
+# displays tamagotchi pet image. params are image and position
 def pet(p, x, y):
     display.blit(p, (x, y))
 
-    # displays care functions, params are image and position
+# displays care functions, params are image and position
 def eat(p, x, y):
     display.blit(p, (x, y))
 
@@ -90,22 +96,40 @@ def brush(p, x, y):
 def ball(p, x, y):
     display.blit(p, (x, y))
 
-def button(x, y, r, ic, ac):
+# Displays buttons
+def button(x, y, r, ic, ac, action = None):
     mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
 
-    if x-r <= mouse[0] <= x+r and y-r < mouse[1] < y+r:
+    # Displays and changes color of button when hovered over
+    if x-r < mouse[0] < x+r and y-r < mouse[1] < y+r:
         pygame.draw.circle(display, ac, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
+
+        # handles if button is clicked
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                print("button clicked " + str(x))
     else:
         pygame.draw.circle(display, ic, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
+
+
+# Displays health bars
+def health_bars(h, s, b, p):
+    total = (h + s + b + p) / 2
+    pygame.draw.rect(display, black, (300, 20, total, 20))
+    pygame.draw.rect(display, black, (50, 140, h, 10))
+    pygame.draw.rect(display, black, (250, 140, s, 10))
+    pygame.draw.rect(display, black, (450, 140, b, 10))
+    pygame.draw.rect(display, black, (650, 140, p, 10))
 
 def menu():
     # do if new game button is pressed
     def new_game():
         pygame_menu.events.EXIT
 
-        run_game([textinp.get_value(), 0, 0, 0, 0, 0])
+        run_game([textinp.get_value(), 0, 100, 100, 100, 100])
 
     def initializeSave(fileName):
         print(fileName)
@@ -157,6 +181,7 @@ if __name__ == '__main__':
     pygame.display.set_caption("Tamagotchi")
     # running timer since startup. may be useful for saves
     clock = pygame.time.Clock()
+
     # loading tamagotchi images and resize
     tama_pet = pygame.image.load('tamarabbit.png')
     tama_pet_small = pygame.transform.scale(tama_pet, (350, 350))
