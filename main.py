@@ -52,7 +52,7 @@ def run_game(tamaData):
                 if 165 <= event.pos[0] <= 235 and 500 <= event.pos[1] <= 570:
                     shift_select('left')
                 elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570:
-                    select_care_func()
+                    select_care_func(tama)
                 elif 565 <= event.pos[0] <= 635 and 500 <= event.pos[1] <= 570:
                     shift_select('right')
         # display background and pet
@@ -73,8 +73,13 @@ def run_game(tamaData):
 
         # Health bar display
         health_bars(tama.hunger, tama.sleep, tama.brush, tama.play)
-        # updates the hunger bar to decrease by 5% every second?
+
+        # updates the hunger bar to decrease by 5% every second
         tama.hunger -= .05
+        tama.sleep -= .05
+        tama.play -= .05
+        tama.brush -= .05
+
 
         font = pygame.font.Font('freesansbold.ttf', 32)
         text = font.render(tama.name, True, white, sky_blue)
@@ -113,7 +118,6 @@ def select(p, x, y):
 # Displays buttons
 def button(x, y, r, ic, ac, action = None):
     mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
 
     # Displays and changes color of button when hovered over
     if x-r < mouse[0] < x+r and y-r < mouse[1] < y+r:
@@ -133,14 +137,18 @@ def health_bars(h, s, b, p):
     pygame.draw.rect(display, black, (650, 140, p, 10))
 
 
-def select_care_func():
+def select_care_func(tama):
     if selected == 45:
+        tama.hunger = 100
         print('eat')
     elif selected == 245:
+        tama.sleep = 100
         print('sleep')
     elif selected == 445:
+        tama.brush = 100
         print('brush')
     else:
+        tama.play = 100
         print("play")
 
 
