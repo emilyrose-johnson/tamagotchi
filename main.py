@@ -3,6 +3,8 @@ import pygame_menu
 import os
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
+selected = 45
+
 
 def main():
     pygame.init()
@@ -45,6 +47,14 @@ def run_game(tamaData):
                 else:
                     current_img = tama_pet_small
                     current_img.set_alpha(255)
+            # handles if button is clicked
+            if event.type == pygame.MOUSEBUTTONUP:
+                if 165 <= event.pos[0] <= 235 and 500 <= event.pos[1] <= 570:
+                    shift_select('left')
+                elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570:
+                    select_care_func()
+                elif 565 <= event.pos[0] <= 635 and 500 <= event.pos[1] <= 570:
+                    shift_select('right')
         # display background and pet
         display.fill(sky_blue)
         pet(current_img, display_width * .27, display_height * .27)
@@ -53,6 +63,7 @@ def run_game(tamaData):
         sleep(sleep_small, 260, 60)
         brush(brush_small, 460, 60)
         ball(ball_small, 660, 60)
+        select(select_small, selected, 33)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
@@ -96,6 +107,9 @@ def brush(p, x, y):
 def ball(p, x, y):
     display.blit(p, (x, y))
 
+def select(p, x, y):
+    return display.blit(p, (x, y))
+
 # Displays buttons
 def button(x, y, r, ic, ac, action = None):
     mouse = pygame.mouse.get_pos()
@@ -105,11 +119,6 @@ def button(x, y, r, ic, ac, action = None):
     if x-r < mouse[0] < x+r and y-r < mouse[1] < y+r:
         pygame.draw.circle(display, ac, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
-
-        # handles if button is clicked
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                print("button clicked " + str(x))
     else:
         pygame.draw.circle(display, ic, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
@@ -123,6 +132,30 @@ def health_bars(h, s, b, p):
     pygame.draw.rect(display, black, (250, 140, s, 10))
     pygame.draw.rect(display, black, (450, 140, b, 10))
     pygame.draw.rect(display, black, (650, 140, p, 10))
+
+
+def select_care_func():
+    if selected == 45:
+        print('eat')
+    elif selected == 245:
+        print('sleep')
+    elif selected == 445:
+        print('brush')
+    else:
+        print("play")
+
+
+def shift_select(direc):
+    global selected
+    if direc == 'left' and selected == 45:
+        selected = 645
+    elif direc == 'right' and selected == 645:
+        selected = 45
+    elif direc == 'left':
+        selected -= 200
+    else:
+        selected += 200
+
 
 def menu():
     # do if new game button is pressed
@@ -200,4 +233,8 @@ if __name__ == '__main__':
 
     ball_pic = pygame.image.load('ball.png')
     ball_small = pygame.transform.scale(ball_pic, (80, 75))
+
+    select_tr = pygame.image.load('select_tr.png')
+    select_small = pygame.transform.scale(select_tr, (110, 110))
+
     main()
