@@ -1,9 +1,6 @@
 import pygame
 import pygame_menu
 import os
-import pygame
-import pygame_menu
-import os
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
