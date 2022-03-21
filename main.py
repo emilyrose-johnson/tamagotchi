@@ -1,6 +1,9 @@
 import pygame
 import pygame_menu
 import os
+import pygame
+import pygame_menu
+import os
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
@@ -123,7 +126,6 @@ def button(x, y, r, ic, ac, action = None):
         pygame.draw.circle(display, ic, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
 
-
 # Displays health bars
 def health_bars(h, s, b, p):
     total = (h + s + b + p) / 2
@@ -156,16 +158,33 @@ def shift_select(direc):
     else:
         selected += 200
 
-
 def menu():
-    # do if new game button is pressed
+# Supporting main menu functions
+    # do if new game button is pressed (run game with default data values)
     def new_game():
         pygame_menu.events.EXIT
-
         run_game([textinp.get_value(), 0, 100, 100, 100, 100])
 
-    def initializeSave(fileName):
-        print(fileName)
+    # read data from save 1 and run game with those data values
+    def initializeSave1():
+        path = "./game_saves/"
+        fileName = path + os.listdir("./game_saves")[0]
+        save = open(fileName, 'r', encoding='utf8')
+        run_game(save.readline().split())
+
+    # read data from save 2 and run game with those data values
+    def initializeSave2():
+        path = "./game_saves/"
+        fileName = path + os.listdir("./game_saves")[1]
+        save = open(fileName, 'r', encoding='utf8')
+        run_game(save.readline().split())
+
+    # read data from save 3 and run game with those data values
+    def initializeSave3():
+        path = "./game_saves/"
+        fileName = path + os.listdir("./game_saves")[2]
+        save = open(fileName, 'r', encoding='utf8')
+        run_game(save.readline().split())
 
     # do if load game button is pressed
     def load_game():
@@ -174,21 +193,24 @@ def menu():
         # set up new level select menu
         level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
-        buttons = []
+        # determine number of saves in the file, make the corresponding number of
+        # buttons and assign corresponding initialize fxn to each bttn
+        saves = os.listdir("./game_saves")
+        if(len(saves) == 0):
+            level_select.add.label("No saves")
+        if(len(saves) >= 1):
+            level_select.add.button(saves[0], initializeSave1)
+        if (len(saves) >= 2):
+            level_select.add.button(saves[1], initializeSave2)
+        if (len(saves) >= 3):
+            level_select.add.button(saves[2], initializeSave3)
 
-        # read in save game files, make buttons for them, read in data from each
-        for count, file in enumerate(os.listdir("./game_saves")):
-            open(('./game_saves/' + file), 'r', encoding='utf8').readline().split()
-            buttons.append(level_select.add.button(file.rsplit('.', 1)[0]))
-
-        for i in range(len(buttons)):
-            buttons[i].set_onreturn(initializeSave(buttons[i].get_title()))
-
+        # add back button
         level_select.add.vertical_margin(20)
         level_select.add.button('Back', menu)
         level_select.mainloop(display)
 
-    # set up main menu
+    # SET UP MAIN MENU
     pygame_menu.events.EXIT
     menu = pygame_menu.Menu('Main Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
