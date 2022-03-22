@@ -37,6 +37,11 @@ def run_game(tamaData):
     pygame.time.set_timer(ALTERNATEimg, 1250)
     pygame.time.set_timer(INCREASEage, 10000)
 
+    hungerAction = False
+    sleepAction = False
+    brushAction = False
+    playAction = False
+
     # while game not exited
     while not crashed:
         # event handler
@@ -48,9 +53,32 @@ def run_game(tamaData):
             if event.type == ALTERNATEimg:
                 carrot_small.set_alpha(0)
                 current_img.set_alpha(0)
-                if current_img == tama_pet_small:
+                #if hunger button was presses, display animation on image switch
+                if hungerAction:
+                    carrot_small.set_alpha(255)
+                    current_img = tama_pet_eat_small
+                    current_img.set_alpha(255)
+                    hungerAction = False
+                # if sleep button was presses, display animation on image switch
+                elif sleepAction:
+                    current_img = tama_pet_sleep_small
+                    current_img.set_alpha(255)
+                    sleepAction = False
+                # if brush button was presses, display animation on image switch
+                elif brushAction:
+                    current_img = tama_pet_brush_small
+                    current_img.set_alpha(255)
+                    brushAction = False
+                # if play button was presses, display animation on image switch
+                elif playAction:
+                    current_img = tama_pet_play_small
+                    current_img.set_alpha(255)
+                    playAction = False
+                # else, flip...
+                elif current_img == tama_pet_small:
                     current_img = tama_pet1_small
                     current_img.set_alpha(255)
+                # flop
                 else:
                     current_img = tama_pet_small
                     current_img.set_alpha(255)
@@ -64,22 +92,17 @@ def run_game(tamaData):
                     # reset alternate img timer to 0 to display care action for correct time.
                     pygame.time.set_timer(ALTERNATEimg, 1250)
                     if selected == 45:
+                        hungerAction = True
                         tama.hunger = 100
-                        carrot_small.set_alpha(255)
-                        current_img = tama_pet_eat_small
-                        current_img.set_alpha(255)
                     elif selected == 245:
+                        sleepAction = True
                         tama.sleep = 100
-                        current_img = tama_pet_sleep_small
-                        current_img.set_alpha(255)
                     elif selected == 445:
+                        brushAction = True
                         tama.brush = 100
-                        current_img = tama_pet_brush_small
-                        current_img.set_alpha(255)
                     else:
+                        playAction = True
                         tama.play = 100
-                        current_img = tama_pet_play_small
-                        current_img.set_alpha(255)
                 # move select right
                 elif 565 <= event.pos[0] <= 635 and 500 <= event.pos[1] <= 570:
                     shift_select('right')
