@@ -2,11 +2,9 @@ import pygame
 import pygame_menu
 import os
 
-
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
 current_img = None
-
 
 def main():
     pygame.init()
@@ -88,6 +86,7 @@ def run_game(tamaData):
                 # Menu Button
                 elif 0 <= event.pos[0] <= 124 and 0 <= event.pos[1] <= 29:
                     inGameMenufn(tama)
+            # increase Tama age every 10 seconds
             if event.type == INCREASEage:
                 tama.age += 1
 
@@ -219,8 +218,10 @@ def shift_select(direc):
     else:
         selected += 200
 
+# in game menu function
 def inGameMenufn(tama):
-
+# Supporting in game menu functions
+    # Options menu function
     def optionsMenufn():
         pygame_menu.events.EXIT
         optionsMenu = pygame_menu.Menu('options', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
@@ -231,6 +232,7 @@ def inGameMenufn(tama):
 
         optionsMenu.mainloop(display)
 
+    # help menu function
     def helpMenufn():
         pygame_menu.events.EXIT
         helpMenu = pygame_menu.Menu('Help', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
@@ -241,51 +243,69 @@ def inGameMenufn(tama):
 
         helpMenu.mainloop(display)
 
+    #save menu function
     def saveMenufn():
 
+        # function that actually does the save file i/o
         def save():
+            # get the save slot and name of the save
             slot = slotInp.get_value()[0]
             name = textInp.get_value()
 
             path = "./game_saves/"
             saves = os.listdir("./game_saves")
 
+            # save to slot 1
             if slot == '1':
+                # if theres already as save in slot 1, remove it
                 if len(saves) >= 1 and os.path.isfile(path + saves[0]):
                     os.remove(path + saves[0])
+                # create the new save in the save folder
                 filename = "SS1." + name + '.txt'
                 with open(os.path.join(path, filename), 'w') as temp_file:
                     temp_file.write(tama.toString())
 
+            # save to slot 2
             if slot == '2':
+                # if theres already as save in slot 1, remove it
                 if len(saves) >= 2 and os.path.isfile(path + saves[1]):
                     os.remove(path + saves[1])
+                    # create the new save in the save folder
                 filename = "SS2." + name + '.txt'
                 with open(os.path.join(path, filename), 'w') as temp_file:
                     temp_file.write(tama.toString())
 
+            # save to slot 3
             if slot == '3':
+                # if theres already as save in slot 1, remove it
                 if len(saves) >= 3 and os.path.isfile(path + saves[2]):
                     os.remove(path + saves[2])
+                    # create the new save in the save folder
                 filename = "SS3." + name + '.txt'
                 with open(os.path.join(path, filename), 'w') as temp_file:
                     temp_file.write(tama.toString())
 
+            # return to the in game menu
             inGameMenufn(tama)
 
+        #mak the save menu
         pygame_menu.events.EXIT
         saveMenu = pygame_menu.Menu('Save', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
+        # does the game_saves folder exist? if no, make one.
         saveMenu.add.label("Current Saves")
         if not os.path.exists("./game_saves"):
             os.makedirs("./game_saves")
+
+        # list the current saves
         saves = os.listdir("./game_saves")
         for i, e in enumerate(saves):
             saveMenu.add.label("Slot " + str(i+1) + ": " + e.split('.')[1])
-
+        # no saves
         if len(saves) == 0:
             saveMenu.add.label("No Saves")
 
+        #save menu selector, name input, buttons
         saveMenu.add.vertical_margin(40)
         slotInp = saveMenu.add.selector("Save Slot: ", ['1', '2', '3'])
         textInp = saveMenu.add.text_input("Save Name: ", tama.name)
@@ -296,12 +316,15 @@ def inGameMenufn(tama):
 
         saveMenu.mainloop(display)
 
+    # return to main menu
     def exitfn():
         menu()
 
+    # return back to game (does not run in background)
     def backfn():
         run_game(tama.toString().split())
 
+    # Make in game menu buttons
     pygame_menu.events.EXIT
     inGameMenu = pygame_menu.Menu('Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
@@ -315,6 +338,7 @@ def inGameMenufn(tama):
     inGameMenu.add.button('Back', backfn)
 
     inGameMenu.mainloop(display)
+
 
 def menu():
 # Supporting main menu functions
@@ -361,7 +385,8 @@ def menu():
         level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
         # determine number of saves in the file, make the corresponding number of
-        # buttons and assign corresponding initialize fxn to each bttn
+        # buttons and assign corresponding initialize fxn to each bttn.
+        # If game_saves file does not exist, make it.
         if not os.path.exists("./game_saves"):
             os.makedirs("./game_saves")
         saves = os.listdir("./game_saves")
