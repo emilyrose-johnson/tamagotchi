@@ -4,6 +4,7 @@ import os
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
+current_img = None
 
 
 def main():
@@ -30,7 +31,7 @@ def run_game(tamaData):
     # setup for pet frame alternation every second
     current_img = tama_pet_small
     ALT = pygame.USEREVENT + 1
-    pygame.time.set_timer(ALT, 1000)
+    pygame.time.set_timer(ALT, 1250)
 
     # while game not exited
     while not crashed:
@@ -40,6 +41,7 @@ def run_game(tamaData):
                 crashed = True
             # alternate image, alpha sets transparency
             if event.type == ALT:
+                carrot_small.set_alpha(0)
                 current_img.set_alpha(0)
                 if current_img == tama_pet_small:
                     current_img = tama_pet1_small
@@ -52,7 +54,23 @@ def run_game(tamaData):
                 if 165 <= event.pos[0] <= 235 and 500 <= event.pos[1] <= 570:
                     shift_select('left')
                 elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570:
-                    select_care_func(tama)
+                    if selected == 45:
+                        tama.hunger = 100
+                        carrot_small.set_alpha(255)
+                        current_img = tama_pet_eat_small
+                        current_img.set_alpha(255)
+                    elif selected == 245:
+                        tama.sleep = 100
+                        current_img = tama_pet_sleep_small
+                        current_img.set_alpha(255)
+                    elif selected == 445:
+                        tama.brush = 100
+                        current_img = tama_pet_brush_small
+                        current_img.set_alpha(255)
+                    else:
+                        tama.play = 100
+                        current_img = tama_pet_play_small
+                        current_img.set_alpha(255)
                 elif 565 <= event.pos[0] <= 635 and 500 <= event.pos[1] <= 570:
                     shift_select('right')
         # display background and pet
@@ -64,6 +82,7 @@ def run_game(tamaData):
         brush(brush_small, 460, 60)
         ball(ball_small, 660, 60)
         select(select_small, selected, 33)
+        display_carrot(carrot_small, 325, 365)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
@@ -115,6 +134,9 @@ def ball(p, x, y):
 def select(p, x, y):
     return display.blit(p, (x, y))
 
+def display_carrot(p, x, y):
+    return display.blit(p, (x,y))
+
 # Displays buttons
 def button(x, y, r, ic, ac, action = None):
     mouse = pygame.mouse.get_pos()
@@ -137,19 +159,18 @@ def health_bars(h, s, b, p):
     pygame.draw.rect(display, black, (650, 140, p, 10))
 
 
-def select_care_func(tama):
-    if selected == 45:
-        tama.hunger = 100
-        print('eat')
-    elif selected == 245:
-        tama.sleep = 100
-        print('sleep')
-    elif selected == 445:
-        tama.brush = 100
-        print('brush')
-    else:
-        tama.play = 100
-        print("play")
+#def select_care_func(tama):
+#    if selected == 45:
+#        tama.hunger = 100
+#        carrot_small.set_alpha(255)
+#    elif selected == 245:
+#        tama.sleep = 100
+#    elif selected == 445:
+#        tama.brush = 100
+#        print('brush')
+#    else:
+#        tama.play = 100
+#        print("play")
 
 
 def shift_select(direc):
@@ -247,6 +268,14 @@ if __name__ == '__main__':
     tama_pet_small = pygame.transform.scale(tama_pet, (350, 350))
     tama_pet1 = pygame.image.load('tamarabbit1.png')
     tama_pet1_small = pygame.transform.scale(tama_pet1, (350, 350))
+    tama_pet_eat = pygame.image.load('tamarabbiteat.png')
+    tama_pet_eat_small = pygame.transform.scale(tama_pet_eat, (350, 350))
+    tama_pet_sleep = pygame.image.load('tamarabbitsleep.png')
+    tama_pet_sleep_small = pygame.transform.scale(tama_pet_sleep, (350, 350))
+    tama_pet_brush = pygame.image.load('tamarabbitbrush.png')
+    tama_pet_brush_small = pygame.transform.scale(tama_pet_brush, (350, 350))
+    tama_pet_play = pygame.image.load('tamarabbitplay.png')
+    tama_pet_play_small = pygame.transform.scale(tama_pet_play, (350, 350))
 
     # load care images and resize
     eat_pic = pygame.image.load('eat.png')
@@ -263,5 +292,9 @@ if __name__ == '__main__':
 
     select_tr = pygame.image.load('select_tr.png')
     select_small = pygame.transform.scale(select_tr, (110, 110))
+
+    carrot_pic = pygame.image.load('carrot.png')
+    carrot_small = pygame.transform.scale(carrot_pic, (110, 110))
+    carrot_small.set_alpha(0)
 
     main()
