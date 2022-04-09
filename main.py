@@ -5,35 +5,42 @@ import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
 current_img = None
+current_pet = 'bunny'
+
 
 def main():
     pygame.init()
     menu()
 
+
 class Pet:
-    def __init__(self, tamaName, tamaAge, tamaHunger, tamaSleep, tamaBrush, tamaPlay):
+    def __init__(self, tamaName, tamaAge, tamaHunger, tamaSleep, tamaBrush, tamaPlay, pet):
         self.name = tamaName
         self.age = tamaAge
         self.hunger = tamaHunger
         self.sleep = tamaSleep
         self.brush = tamaBrush
         self.play = tamaPlay
+        self.pet = pet
 
     def toString(self):
-        return str(self.name) + " " + str(int(self.age)) + " " + str(int(self.hunger)) + " " + str(int(self.sleep)) + " " + str(int(self.brush)) + " " + str(int(self.play))
+        return str(self.name) + " " + str(int(self.age)) + " " + str(int(self.hunger)) + " " + str(int(self.sleep)) + \
+               " " + str(int(self.brush)) + " " + str(int(self.play)) + " " + str(self.pet)
 
 
-def run_game(tamaData):
+def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama_pet_sleep_small, tama_pet_brush_small,
+             tama_pet_play_small):
     # flag to see if player exited
     crashed = False
 
     # create tama instance
-    tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]), int(tamaData[5]))
+    tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]), int(tamaData[5]),
+               tamaData[6])
 
     # setup for pet frame alternation every second
     current_img = tama_pet_small
     ALTERNATEimg = pygame.USEREVENT + 1
-    INCREASEage = pygame.USEREVENT +2
+    INCREASEage = pygame.USEREVENT + 2
     pygame.time.set_timer(ALTERNATEimg, 1250)
     pygame.time.set_timer(INCREASEage, 10000)
 
@@ -51,25 +58,25 @@ def run_game(tamaData):
                 crashed = True
             # alternate image, alpha sets transparency
             if event.type == ALTERNATEimg:
-                carrot_small.set_alpha(0)
+                # carrot_small.set_alpha(0)
                 current_img.set_alpha(0)
-                #if hunger button was presses, display animation on image switch
+                # if hunger button was pressed, display animation on image switch
                 if hungerAction:
-                    carrot_small.set_alpha(255)
+                    # carrot_small.set_alpha(255)
                     current_img = tama_pet_eat_small
                     current_img.set_alpha(255)
                     hungerAction = False
-                # if sleep button was presses, display animation on image switch
+                # if sleep button was pressed, display animation on image switch
                 elif sleepAction:
                     current_img = tama_pet_sleep_small
                     current_img.set_alpha(255)
                     sleepAction = False
-                # if brush button was presses, display animation on image switch
+                # if brush button was pressed, display animation on image switch
                 elif brushAction:
                     current_img = tama_pet_brush_small
                     current_img.set_alpha(255)
                     brushAction = False
-                # if play button was presses, display animation on image switch
+                # if play button was pressed, display animation on image switch
                 elif playAction:
                     current_img = tama_pet_play_small
                     current_img.set_alpha(255)
@@ -117,13 +124,13 @@ def run_game(tamaData):
         display.fill(sky_blue)
         pet(current_img, display_width * .27, display_height * .27)
 
-        #display care function icons
+        # display care function icons
         eat(eat_small, 45, 60)
         sleep(sleep_small, 260, 60)
         brush(brush_small, 460, 60)
         ball(ball_small, 660, 60)
-        select(select_small, selected, 33)
-        display_carrot(carrot_small, 325, 365)
+        selector(select_small, selected, 33)
+        # display_carrot(carrot_small, 325, 365)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
@@ -146,7 +153,7 @@ def run_game(tamaData):
         font_name = pygame.font.Font('PixeloidSans.ttf', 25)
         text_name = font_name.render(tama.name, True, black, sky_blue)
         textRect_name = text_name.get_rect()
-        textRect_name.center = (display_width - text_name.get_width()/2 - 10, text_name.get_height()/2 + 5)
+        textRect_name.center = (display_width - text_name.get_width() / 2 - 10, text_name.get_height() / 2 + 5)
         display.blit(text_name, textRect_name)
 
         # Health bar display
@@ -162,7 +169,6 @@ def run_game(tamaData):
         if tama.brush > 0:
             tama.brush -= .05
 
-
         # update display, set fps to 60
         pygame.display.update()
         clock.tick(60)
@@ -170,6 +176,7 @@ def run_game(tamaData):
     # exit code
     pygame.quit()
     quit()
+
 
 # displays tamagotchi pet image. params are image and position
 def pet(p, x, y):
@@ -188,23 +195,25 @@ def brush(p, x, y):
 def ball(p, x, y):
     display.blit(p, (x, y))
 
-def select(p, x, y):
+def selector(p, x, y):
     return display.blit(p, (x, y))
 
-def display_carrot(p, x, y):
-    return display.blit(p, (x,y))
+# def display_carrot(p, x, y):
+#     return display.blit(p, (x, y))
+
 
 # Displays buttons
-def button(x, y, r, ic, ac, action = None):
+def button(x, y, r, ic, ac, action=None):
     mouse = pygame.mouse.get_pos()
 
     # Displays and changes color of button when hovered over
-    if x-r < mouse[0] < x+r and y-r < mouse[1] < y+r:
+    if x - r < mouse[0] < x + r and y - r < mouse[1] < y + r:
         pygame.draw.circle(display, ac, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
     else:
         pygame.draw.circle(display, ic, (x, y), r)
         pygame.draw.circle(display, black, (x, y), r, width=5)
+
 
 # Displays health bars
 def health_bars(h, s, b, p):
@@ -216,7 +225,7 @@ def health_bars(h, s, b, p):
     pygame.draw.rect(display, black, (650, 140, p, 10))
 
 
-#def select_care_func(tama):
+# def select_care_func(tama):
 #    if selected == 45:
 #        tama.hunger = 100
 #        carrot_small.set_alpha(255)
@@ -241,13 +250,15 @@ def shift_select(direc):
     else:
         selected += 200
 
+
 # in game menu function
 def inGameMenufn(tama):
-# Supporting in game menu functions
+    # Supporting in game menu functions
     # Options menu function
     def optionsMenufn():
         pygame_menu.events.EXIT
-        optionsMenu = pygame_menu.Menu('options', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+        optionsMenu = pygame_menu.Menu('options', display_width, display_height,
+                                       theme=pygame_menu.themes.THEME_SOLARIZED)
 
         optionsMenu.add.label("Options")
         optionsMenu.add.vertical_margin(20)
@@ -266,7 +277,7 @@ def inGameMenufn(tama):
 
         helpMenu.mainloop(display)
 
-    #save menu function
+    # save menu function
     def saveMenufn():
 
         # function that actually does the save file i/o
@@ -280,7 +291,7 @@ def inGameMenufn(tama):
 
             # save to slot 1
             if slot == '1':
-                # if theres already as save in slot 1, remove it
+                # if theres already a save in slot 1, remove it
                 if len(saves) >= 1 and os.path.isfile(path + saves[0]):
                     os.remove(path + saves[0])
                 # create the new save in the save folder
@@ -290,7 +301,7 @@ def inGameMenufn(tama):
 
             # save to slot 2
             if slot == '2':
-                # if theres already as save in slot 1, remove it
+                # if theres already a save in slot 1, remove it
                 if len(saves) >= 2 and os.path.isfile(path + saves[1]):
                     os.remove(path + saves[1])
                     # create the new save in the save folder
@@ -300,7 +311,7 @@ def inGameMenufn(tama):
 
             # save to slot 3
             if slot == '3':
-                # if theres already as save in slot 1, remove it
+                # if theres already a save in slot 1, remove it
                 if len(saves) >= 3 and os.path.isfile(path + saves[2]):
                     os.remove(path + saves[2])
                     # create the new save in the save folder
@@ -311,7 +322,7 @@ def inGameMenufn(tama):
             # return to the in game menu
             inGameMenufn(tama)
 
-        #mak the save menu
+        # mak the save menu
         pygame_menu.events.EXIT
         saveMenu = pygame_menu.Menu('Save', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
@@ -323,12 +334,12 @@ def inGameMenufn(tama):
         # list the current saves
         saves = os.listdir("./game_saves")
         for i, e in enumerate(saves):
-            saveMenu.add.label("Slot " + str(i+1) + ": " + e.split('.')[1])
+            saveMenu.add.label("Slot " + str(i + 1) + ": " + e.split('.')[1])
         # no saves
         if len(saves) == 0:
             saveMenu.add.label("No Saves")
 
-        #save menu selector, name input, buttons
+        # save menu selector, name input, buttons
         saveMenu.add.vertical_margin(40)
         slotInp = saveMenu.add.selector("Save Slot: ", ['1', '2', '3'])
         textInp = saveMenu.add.text_input("Save Name: ", tama.name)
@@ -364,14 +375,33 @@ def inGameMenufn(tama):
 
 
 def menu():
-# Supporting main menu functions
+    # Supporting main menu functions
     # do if new game button is pressed (run game with default data values)
-    def new_game():
-        pygame_menu.events.EXIT
+
+    def new_game(data=None):
         name = textinp.get_value()
         if name == '':
             name = 'Tamagotchi'
-        run_game([name, 0, 100, 100, 100, 100])
+        if data is None:
+            data = [name, 0, 100, 100, 100, 100, current_pet]
+        pygame_menu.events.EXIT
+        pet_imgs = []
+        if data[6] == 'bunny':
+            pet_imgs.append(tama_bunny_small)
+            pet_imgs.append(tama_bunny1_small)
+            pet_imgs.append(tama_bunny_eat_small)
+            pet_imgs.append(tama_bunny_sleep_small)
+            pet_imgs.append(tama_bunny_brush_small)
+            pet_imgs.append(tama_bunny_play_small)
+        elif data[6] == 'fox':
+            pet_imgs.append(tama_fox_small)
+            pet_imgs.append(tama_fox1_small)
+            pet_imgs.append(tama_fox_eat_small)
+            pet_imgs.append(tama_fox_sleep_small)
+            pet_imgs.append(tama_fox_brush_small)
+            pet_imgs.append(tama_fox_play_small)
+
+        run_game(data, *pet_imgs)
 
     # read data from save 1 and run game with those data values
     def initializeSave1():
@@ -380,7 +410,7 @@ def menu():
         save = open(fileName, 'r', encoding='utf8')
         data = save.readline().split()
         save.close()
-        run_game(data)
+        new_game(data)
 
     # read data from save 2 and run game with those data values
     def initializeSave2():
@@ -389,7 +419,7 @@ def menu():
         save = open(fileName, 'r', encoding='utf8')
         data = save.readline().split()
         save.close()
-        run_game(data)
+        new_game(data)
 
     # read data from save 3 and run game with those data values
     def initializeSave3():
@@ -398,14 +428,15 @@ def menu():
         save = open(fileName, 'r', encoding='utf8')
         data = save.readline().split()
         save.close()
-        run_game(data)
+        new_game(data)
 
     # do if load game button is pressed
     def load_game():
         # get rid of main menu
         pygame_menu.events.EXIT
         # set up new level select menu
-        level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+        level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height,
+                                        theme=pygame_menu.themes.THEME_SOLARIZED)
 
         # determine number of saves in the file, make the corresponding number of
         # buttons and assign corresponding initialize fxn to each bttn.
@@ -413,19 +444,46 @@ def menu():
         if not os.path.exists("./game_saves"):
             os.makedirs("./game_saves")
         saves = os.listdir("./game_saves")
-        if(len(saves) == 0):
+        if len(saves) == 0:
             level_select.add.label("No Saves")
-        if(len(saves) >= 1):
+        if len(saves) >= 1:
             level_select.add.button("Slot 1: " + saves[0].split('.')[1], initializeSave1)
-        if (len(saves) >= 2):
+        if len(saves) >= 2:
             level_select.add.button("Slot 2: " + saves[1].split('.')[1], initializeSave2)
-        if (len(saves) >= 3):
+        if len(saves) >= 3:
             level_select.add.button("Slot 3: " + saves[2].split('.')[1], initializeSave3)
 
         # add back button
         level_select.add.vertical_margin(20)
         level_select.add.button('Back', menu)
         level_select.mainloop(display)
+
+    def select_pet():
+        pygame_menu.events.EXIT
+        global current_pet
+        current_pet = 'bunny'
+        # set up pet select menu
+        pet_select = pygame_menu.Menu('Select Pet', display_width, display_height,
+                                      theme=pygame_menu.themes.THEME_SOLARIZED)
+
+        bunny_img = pet_select.add.image('tamarabbit.png', image_id='bunny', scale=(0.4, 0.4))
+        fox_img = pet_select.add.image('fox-happy1.png', image_id='fox', scale=(0.1, 0.1))
+        bunny_img.set_border(2, 'black')
+        fox_img.set_border(2, 'black')
+        bunny_img.set_float(origin_position=True)
+        fox_img.set_float(origin_position=True)
+        bunny_img.translate(100, 100)
+        fox_img.translate(300, 45)
+
+        pet_select.add.vertical_margin(300)
+        pet_select.add.selector("Select Pet: ", [('Bunny', 'bunny'), ('Fox', 'fox')], onchange=update_pet)
+        pet_select.add.button('Done', new_game)
+        pet_select.add.button('Back', menu)
+        pet_select.mainloop(display)
+
+    def update_pet(tup, selection):
+        global current_pet
+        current_pet = selection
 
     # SET UP MAIN MENU
     pygame_menu.events.EXIT
@@ -434,7 +492,7 @@ def menu():
     menu.add.image('./ascii_logo_noBackground.png')
     menu.add.vertical_margin(20)
     textinp = menu.add.text_input('Pet Name:  ')
-    menu.add.button('Start New Game', new_game)
+    menu.add.button('Start New Game', select_pet)
     menu.add.button('Load Game', load_game)
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
@@ -456,18 +514,31 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
 
     # loading tamagotchi images and resize
-    tama_pet = pygame.image.load('tamarabbit.png')
-    tama_pet_small = pygame.transform.scale(tama_pet, (350, 350))
-    tama_pet1 = pygame.image.load('tamarabbit1.png')
-    tama_pet1_small = pygame.transform.scale(tama_pet1, (350, 350))
-    tama_pet_eat = pygame.image.load('tamarabbiteat.png')
-    tama_pet_eat_small = pygame.transform.scale(tama_pet_eat, (350, 350))
-    tama_pet_sleep = pygame.image.load('tamarabbitsleep.png')
-    tama_pet_sleep_small = pygame.transform.scale(tama_pet_sleep, (350, 350))
-    tama_pet_brush = pygame.image.load('tamarabbitbrush.png')
-    tama_pet_brush_small = pygame.transform.scale(tama_pet_brush, (350, 350))
-    tama_pet_play = pygame.image.load('tamarabbitplay.png')
-    tama_pet_play_small = pygame.transform.scale(tama_pet_play, (350, 350))
+    tama_fox = pygame.image.load('Fox-happy1.png')
+    tama_fox_small = pygame.transform.scale(tama_fox, (350, 400))
+    tama_fox1 = pygame.image.load('Fox-happy2.png')
+    tama_fox1_small = pygame.transform.scale(tama_fox1, (350, 400))
+    tama_fox_eat = pygame.image.load('Fox-eat.png')
+    tama_fox_eat_small = pygame.transform.scale(tama_fox_eat, (350, 400))
+    tama_fox_sleep = pygame.image.load('Fox-sleep.png')
+    tama_fox_sleep_small = pygame.transform.scale(tama_fox_sleep, (350, 400))
+    tama_fox_brush = pygame.image.load('Fox-brush.png')
+    tama_fox_brush_small = pygame.transform.scale(tama_fox_brush, (350, 400))
+    tama_fox_play = pygame.image.load('Fox-play.png')
+    tama_fox_play_small = pygame.transform.scale(tama_fox_play, (350, 400))
+
+    tama_bunny = pygame.image.load('tamarabbit.png')
+    tama_bunny_small = pygame.transform.scale(tama_bunny, (350, 350))
+    tama_bunny1 = pygame.image.load('tamarabbit1.png')
+    tama_bunny1_small = pygame.transform.scale(tama_bunny1, (350, 350))
+    tama_bunny_eat = pygame.image.load('tamarabbiteat.png')
+    tama_bunny_eat_small = pygame.transform.scale(tama_bunny_eat, (350, 350))
+    tama_bunny_sleep = pygame.image.load('tamarabbitsleep.png')
+    tama_bunny_sleep_small = pygame.transform.scale(tama_bunny_sleep, (350, 350))
+    tama_bunny_brush = pygame.image.load('tamarabbitbrush.png')
+    tama_bunny_brush_small = pygame.transform.scale(tama_bunny_brush, (350, 350))
+    tama_bunny_play = pygame.image.load('tamarabbitplay.png')
+    tama_bunny_play_small = pygame.transform.scale(tama_bunny_play, (350, 350))
 
     # load care images and resize
     eat_pic = pygame.image.load('eat.png')
@@ -485,8 +556,8 @@ if __name__ == '__main__':
     select_tr = pygame.image.load('select_tr.png')
     select_small = pygame.transform.scale(select_tr, (110, 110))
 
-    carrot_pic = pygame.image.load('carrot.png')
-    carrot_small = pygame.transform.scale(carrot_pic, (110, 110))
-    carrot_small.set_alpha(0)
+    # carrot_pic = pygame.image.load('carrot.png')
+    # carrot_small = pygame.transform.scale(carrot_pic, (110, 110))
+    # carrot_small.set_alpha(0)
 
     main()
