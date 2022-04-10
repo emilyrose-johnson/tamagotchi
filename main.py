@@ -214,9 +214,6 @@ def ball(p, x, y):
 def selector(p, x, y):
     return display.blit(p, (x, y))
 
-# def display_carrot(p, x, y):
-#     return display.blit(p, (x, y))
-
 
 # Displays buttons
 def button(x, y, r, ic, ac, action=None):
@@ -251,6 +248,43 @@ def shift_select(direc):
         selected -= 200
     else:
         selected += 200
+
+
+def get_images(pet_type):
+    pet_imgs = []
+    if pet_type == 'bunny':
+        pet_imgs.append(tama_bunny_small)
+        pet_imgs.append(tama_bunny1_small)
+        pet_imgs.append(tama_bunny_eat_small)
+        pet_imgs.append(tama_bunny_sleep_small)
+        pet_imgs.append(tama_bunny_brush_small)
+        pet_imgs.append(tama_bunny_play_small)
+        pet_imgs.append(tama_bunny_sick_small)
+        pet_imgs.append(tama_bunny_sick1_small)
+        pet_imgs.append(tama_bunny_dead_small)
+
+    elif pet_type == 'fox':
+        pet_imgs.append(tama_fox_small)
+        pet_imgs.append(tama_fox1_small)
+        pet_imgs.append(tama_fox_eat_small)
+        pet_imgs.append(tama_fox_sleep_small)
+        pet_imgs.append(tama_fox_brush_small)
+        pet_imgs.append(tama_fox_play_small)
+        pet_imgs.append(tama_fox_sick_small)
+        pet_imgs.append(tama_fox_sick2_small)
+        pet_imgs.append(tama_fox_dead_small)
+
+    elif pet_type == 'cat':
+        pet_imgs.append(tama_cat1_small)
+        pet_imgs.append(tama_cat2_small)
+        pet_imgs.append(tama_cat_eat_small)
+        pet_imgs.append(tama_cat_sleep_small)
+        pet_imgs.append(tama_cat_brush_small)
+        pet_imgs.append(tama_cat_play_small)
+        pet_imgs.append(tama_cat_sick_small)
+        pet_imgs.append(tama_cat_sick2_small)
+        pet_imgs.append(tama_cat_dead_small)
+    return pet_imgs
 
 
 # in game menu function
@@ -358,7 +392,8 @@ def inGameMenufn(tama):
 
     # return back to game (does not run in background)
     def backfn():
-        run_game(tama.toString().split())
+        data = tama.toString().split()
+        run_game(data, *get_images(data[6]))
 
     # Make in game menu buttons
     pygame_menu.events.EXIT
@@ -387,40 +422,7 @@ def menu():
         if data is None:
             data = [name, 0, 100, 100, 100, 100, current_pet]
         pygame_menu.events.EXIT
-        pet_imgs = []
-        if data[6] == 'bunny':
-            pet_imgs.append(tama_bunny_small)
-            pet_imgs.append(tama_bunny1_small)
-            pet_imgs.append(tama_bunny_eat_small)
-            pet_imgs.append(tama_bunny_sleep_small)
-            pet_imgs.append(tama_bunny_brush_small)
-            pet_imgs.append(tama_bunny_play_small)
-            pet_imgs.append(tama_bunny_sick_small)
-            pet_imgs.append(tama_bunny_sick1_small)
-            pet_imgs.append(tama_bunny_dead_small)
-
-        elif data[6] == 'fox':
-            pet_imgs.append(tama_fox_small)
-            pet_imgs.append(tama_fox1_small)
-            pet_imgs.append(tama_fox_eat_small)
-            pet_imgs.append(tama_fox_sleep_small)
-            pet_imgs.append(tama_fox_brush_small)
-            pet_imgs.append(tama_fox_play_small)
-            pet_imgs.append(tama_fox_sick_small)
-            pet_imgs.append(tama_fox_sick2_small)
-            pet_imgs.append(tama_fox_dead_small)
-
-        elif data[6] == 'cat':
-            pet_imgs.append(tama_cat1_small)
-            pet_imgs.append(tama_cat2_small)
-            pet_imgs.append(tama_cat_eat_small)
-            pet_imgs.append(tama_cat_sleep_small)
-            pet_imgs.append(tama_cat_brush_small)
-            pet_imgs.append(tama_cat_play_small)
-            pet_imgs.append(tama_cat_sick_small)
-            pet_imgs.append(tama_cat_sick2_small)
-            pet_imgs.append(tama_cat_dead_small)
-
+        pet_imgs = get_images(data[6])
         run_game(data, *pet_imgs)
 
     # read data from save 1 and run game with those data values
@@ -481,7 +483,7 @@ def menu():
     def select_pet():
         pygame_menu.events.EXIT
         global current_pet
-        current_pet = 'cat'
+        current_pet = 'bunny'
         # set up pet select menu
         pet_select = pygame_menu.Menu('Select Pet', display_width, display_height,
                                       theme=pygame_menu.themes.THEME_SOLARIZED)
@@ -613,9 +615,5 @@ if __name__ == '__main__':
 
     select_tr = pygame.image.load('select_tr.png')
     select_small = pygame.transform.scale(select_tr, (110, 110))
-
-    # carrot_pic = pygame.image.load('carrot.png')
-    # carrot_small = pygame.transform.scale(carrot_pic, (110, 110))
-    # carrot_small.set_alpha(0)
 
     main()
