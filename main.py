@@ -29,7 +29,7 @@ class Pet:
 
 
 def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama_pet_sleep_small, tama_pet_brush_small,
-             tama_pet_play_small):
+             tama_pet_play_small, tama_pet_sick_small, tama_pet_sick1_small, tama_pet_dead_small):
     # flag to see if player exited
     crashed = False
 
@@ -61,7 +61,23 @@ def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama
                 # carrot_small.set_alpha(0)
                 current_img.set_alpha(0)
                 # if hunger button was pressed, display animation on image switch
-                if hungerAction:
+                if (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 == 0:
+                    current_img = tama_pet_dead_small
+                    current_img.set_alpha(255)
+                elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
+                    if current_img == tama_pet_small:
+                        current_img = tama_pet_sick1_small
+                        current_img.set_alpha(255)
+                    elif current_img == tama_pet1_small:
+                        current_img = tama_pet_sick_small
+                        current_img.set_alpha(255)
+                    elif current_img == tama_pet_sick_small:
+                        current_img = tama_pet_sick1_small
+                        current_img.set_alpha(255)
+                    else:
+                        current_img = tama_pet_sick_small
+                        current_img.set_alpha(255)
+                elif hungerAction:
                     # carrot_small.set_alpha(255)
                     current_img = tama_pet_eat_small
                     current_img.set_alpha(255)
@@ -225,20 +241,6 @@ def health_bars(h, s, b, p):
     pygame.draw.rect(display, black, (650, 140, p, 10))
 
 
-# def select_care_func(tama):
-#    if selected == 45:
-#        tama.hunger = 100
-#        carrot_small.set_alpha(255)
-#    elif selected == 245:
-#        tama.sleep = 100
-#    elif selected == 445:
-#        tama.brush = 100
-#        print('brush')
-#    else:
-#        tama.play = 100
-#        print("play")
-
-
 def shift_select(direc):
     global selected
     if direc == 'left' and selected == 45:
@@ -393,6 +395,10 @@ def menu():
             pet_imgs.append(tama_bunny_sleep_small)
             pet_imgs.append(tama_bunny_brush_small)
             pet_imgs.append(tama_bunny_play_small)
+            pet_imgs.append(tama_bunny_sick_small)
+            pet_imgs.append(tama_bunny_sick1_small)
+            pet_imgs.append(tama_bunny_dead_small)
+
         elif data[6] == 'fox':
             pet_imgs.append(tama_fox_small)
             pet_imgs.append(tama_fox1_small)
@@ -400,6 +406,20 @@ def menu():
             pet_imgs.append(tama_fox_sleep_small)
             pet_imgs.append(tama_fox_brush_small)
             pet_imgs.append(tama_fox_play_small)
+            pet_imgs.append(tama_fox_sick_small)
+            pet_imgs.append(tama_fox_sick2_small)
+            pet_imgs.append(tama_fox_dead_small)
+
+        elif data[6] == 'cat':
+            pet_imgs.append(tama_cat1_small)
+            pet_imgs.append(tama_cat2_small)
+            pet_imgs.append(tama_cat_eat_small)
+            pet_imgs.append(tama_cat_sleep_small)
+            pet_imgs.append(tama_cat_brush_small)
+            pet_imgs.append(tama_cat_play_small)
+            pet_imgs.append(tama_cat_sick_small)
+            pet_imgs.append(tama_cat_sick2_small)
+            pet_imgs.append(tama_cat_dead_small)
 
         run_game(data, *pet_imgs)
 
@@ -461,22 +481,27 @@ def menu():
     def select_pet():
         pygame_menu.events.EXIT
         global current_pet
-        current_pet = 'bunny'
+        current_pet = 'cat'
         # set up pet select menu
         pet_select = pygame_menu.Menu('Select Pet', display_width, display_height,
                                       theme=pygame_menu.themes.THEME_SOLARIZED)
 
         bunny_img = pet_select.add.image('tamarabbit.png', image_id='bunny', scale=(0.4, 0.4))
         fox_img = pet_select.add.image('fox-happy1.png', image_id='fox', scale=(0.1, 0.1))
+        cat_img = pet_select.add.image('cat1.png', image_id='cat', scale=(0.4, 0.4))
         bunny_img.set_border(2, 'black')
         fox_img.set_border(2, 'black')
+        cat_img.set_border(2, 'black')
         bunny_img.set_float(origin_position=True)
         fox_img.set_float(origin_position=True)
+        cat_img.set_float(origin_position=True)
         bunny_img.translate(100, 100)
         fox_img.translate(300, 45)
+        cat_img.translate(500, 110)
 
         pet_select.add.vertical_margin(300)
-        pet_select.add.selector("Select Pet: ", [('Bunny', 'bunny'), ('Fox', 'fox')], onchange=update_pet)
+        pet_select.add.selector("Select Pet: ", [('Bunny', 'bunny'), ('Fox', 'fox'), ('Cat', 'cat')],
+                                onchange=update_pet)
         pet_select.add.button('Done', new_game)
         pet_select.add.button('Back', menu)
         pet_select.mainloop(display)
@@ -526,6 +551,13 @@ if __name__ == '__main__':
     tama_fox_brush_small = pygame.transform.scale(tama_fox_brush, (350, 400))
     tama_fox_play = pygame.image.load('Fox-play.png')
     tama_fox_play_small = pygame.transform.scale(tama_fox_play, (350, 400))
+    tama_fox_sick = pygame.image.load('Fox-sad.png')
+    tama_fox_sick_small = pygame.transform.scale(tama_fox_sick, (350, 400))
+    tama_fox_sick2 = pygame.image.load('Fox-sad2.png')
+    tama_fox_sick2_small = pygame.transform.scale(tama_fox_sick2, (350, 400))
+    tama_fox_dead = pygame.image.load('Fox-dead.png')
+    tama_fox_dead_small = pygame.transform.scale(tama_fox_dead, (350, 400))
+
 
     tama_bunny = pygame.image.load('tamarabbit.png')
     tama_bunny_small = pygame.transform.scale(tama_bunny, (350, 350))
@@ -539,6 +571,32 @@ if __name__ == '__main__':
     tama_bunny_brush_small = pygame.transform.scale(tama_bunny_brush, (350, 350))
     tama_bunny_play = pygame.image.load('tamarabbitplay.png')
     tama_bunny_play_small = pygame.transform.scale(tama_bunny_play, (350, 350))
+    tama_bunny_sick = pygame.image.load('tamarabbit-sad.png')
+    tama_bunny_sick_small = pygame.transform.scale(tama_bunny_sick, (350, 350))
+    tama_bunny_sick1 = pygame.image.load('tamarabbit1-sad.png')
+    tama_bunny_sick1_small = pygame.transform.scale(tama_bunny_sick1, (350, 350))
+    tama_bunny_dead = pygame.image.load('tamarabbit-dead.png')
+    tama_bunny_dead_small = pygame.transform.scale(tama_bunny_dead, (350, 350))
+
+    tama_cat1 = pygame.image.load('cat1.png')
+    tama_cat1_small = pygame.transform.scale(tama_cat1, (350, 350))
+    tama_cat2 = pygame.image.load('cat2.png')
+    tama_cat2_small = pygame.transform.scale(tama_cat2, (350, 350))
+    tama_cat_eat = pygame.image.load('cat_eat.png')
+    tama_cat_eat_small = pygame.transform.scale(tama_cat_eat, (350, 350))
+    tama_cat_sleep = pygame.image.load('cat_sleep.png')
+    tama_cat_sleep_small = pygame.transform.scale(tama_cat_sleep, (350, 350))
+    tama_cat_brush = pygame.image.load('cat_brush.png')
+    tama_cat_brush_small = pygame.transform.scale(tama_cat_brush, (350, 350))
+    tama_cat_play = pygame.image.load('cat_play.png')
+    tama_cat_play_small = pygame.transform.scale(tama_cat_play, (525, 325))
+    tama_cat_sick = pygame.image.load('cat_sick1.png')
+    tama_cat_sick_small = pygame.transform.scale(tama_cat_sick, (350, 350))
+    tama_cat_sick2 = pygame.image.load('cat_sick2.png')
+    tama_cat_sick2_small = pygame.transform.scale(tama_cat_sick2, (350, 350))
+    tama_cat_dead = pygame.image.load('cat_dead.png')
+    tama_cat_dead_small = pygame.transform.scale(tama_cat_dead, (350, 350))
+
 
     # load care images and resize
     eat_pic = pygame.image.load('eat.png')
