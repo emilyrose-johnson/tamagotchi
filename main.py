@@ -1,35 +1,97 @@
+import time
+
 import pygame
 import pygame_menu
 import os
+import enum
+import datetime
+import re
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
 current_img = None
 current_pet = 'bunny'
+actionQueue = []
+speed = 20
 
 
 def main():
     pygame.init()
     menu()
 
-
 class Pet:
-    def __init__(self, tamaName, tamaAge, tamaHunger, tamaSleep, tamaBrush, tamaPlay, pet):
+    def __init__(self, tamaName, tamaAge, tamaHunger, tamaSleep, tamaBrush, tamaPlay, pet_img):
         self.name = tamaName
         self.age = tamaAge
         self.hunger = tamaHunger
         self.sleep = tamaSleep
         self.brush = tamaBrush
         self.play = tamaPlay
-        self.pet = pet
+        self.pet_img = pet_img
 
     def toString(self):
         return str(self.name) + " " + str(int(self.age)) + " " + str(int(self.hunger)) + " " + str(int(self.sleep)) + \
-               " " + str(int(self.brush)) + " " + str(int(self.play)) + " " + str(self.pet)
+               " " + str(int(self.brush)) + " " + str(int(self.play)) + " " + str(self.pet_img)
 
+class PetAction(enum.Enum):
+    hunger = 1
+    brush = 2
+    sleep = 3
+    play = 4
 
-def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama_pet_sleep_small, tama_pet_brush_small,
-             tama_pet_play_small, tama_pet_sick_small, tama_pet_sick1_small, tama_pet_dead_small):
+def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
+            tama_pet_sleep_small, tama_pet_brush_small, tama_pet_play_small, tama_pet_sick_small, tama_pet_sick1_small, tama_pet_dead_small):
+    global current_img
+    current_img.set_alpha(0)
+    # if health is 0, set pet to dead
+    if tama.hunger + tama.play + tama.brush + tama.sleep <= 0:
+        current_img = tama_pet_dead_small
+        current_img.set_alpha(255)
+
+    # if health < 25, set pet to sick
+    elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
+        if current_img == tama_pet_small:
+            current_img = tama_pet_sick1_small
+            current_img.set_alpha(255)
+        elif current_img == tama_pet1_small:
+            current_img = tama_pet_sick_small
+            current_img.set_alpha(255)
+        elif current_img == tama_pet_sick_small:
+            current_img = tama_pet_sick1_small
+            current_img.set_alpha(255)
+        else:
+            current_img = tama_pet_sick_small
+            current_img.set_alpha(255)
+    # if hunger button was pressed, display animation on image switch
+    elif len(actionQueue) > 0 and actionQueue[0] == PetAction.hunger:
+        current_img = tama_pet_eat_small
+        current_img.set_alpha(255)
+        actionQueue.pop(0)
+    # if sleep button was pressed, display animation on image switch
+    elif len(actionQueue) > 0 and actionQueue[0] == PetAction.sleep:
+        current_img = tama_pet_sleep_small
+        current_img.set_alpha(255)
+        actionQueue.pop(0)
+    # if brush button was pressed, display animation on image switch
+    elif len(actionQueue) > 0 and actionQueue[0] == PetAction.brush:
+        current_img = tama_pet_brush_small
+        current_img.set_alpha(255)
+        actionQueue.pop(0)
+    # if play button was pressed, display animation on image switch
+    elif len(actionQueue) > 0 and actionQueue[0] == PetAction.play:
+        current_img = tama_pet_play_small
+        current_img.set_alpha(255)
+        actionQueue.pop(0)
+    # else, flip...
+    elif current_img == tama_pet_small:
+        current_img = tama_pet1_small
+        current_img.set_alpha(255)
+    # flop
+    else:
+        current_img = tama_pet_small
+        current_img.set_alpha(255)
+
+def run_game(tamaData, tama_pet_small):
     # flag to see if player exited
     crashed = False
 
@@ -38,16 +100,24 @@ def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama
                tamaData[6])
 
     # setup for pet frame alternation every second
+    pet_imgs = get_images(tamaData[6])
+    global current_img
     current_img = tama_pet_small
     ALTERNATEimg = pygame.USEREVENT + 1
     INCREASEage = pygame.USEREVENT + 2
+    DECREASEhealth = pygame.USEREVENT + 3
     pygame.time.set_timer(ALTERNATEimg, 1250)
     pygame.time.set_timer(INCREASEage, 10000)
+    pygame.time.set_timer(DECREASEhealth, speed)
 
-    hungerAction = False
-    sleepAction = False
-    brushAction = False
-    playAction = False
+    display.fill(sky_blue)
+    pet(current_img, display_width * .27, display_height * .27)
+    pygame.display.update()
+
+    # tama.play = 5
+    # tama.sleep = 5
+    # tama.brush = 5
+    # tama.hunger = 5
 
     # while game not exited
     while not crashed:
@@ -56,75 +126,39 @@ def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama
             # exit if x pressed
             if event.type == pygame.QUIT:
                 crashed = True
-            # alternate image, alpha sets transparency
+            # Update pet image
             if event.type == ALTERNATEimg:
-                # carrot_small.set_alpha(0)
-                current_img.set_alpha(0)
-                # if hunger button was pressed, display animation on image switch
-                if (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 == 0:
-                    current_img = tama_pet_dead_small
-                    current_img.set_alpha(255)
-                elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
-                    if current_img == tama_pet_small:
-                        current_img = tama_pet_sick1_small
-                        current_img.set_alpha(255)
-                    elif current_img == tama_pet1_small:
-                        current_img = tama_pet_sick_small
-                        current_img.set_alpha(255)
-                    elif current_img == tama_pet_sick_small:
-                        current_img = tama_pet_sick1_small
-                        current_img.set_alpha(255)
-                    else:
-                        current_img = tama_pet_sick_small
-                        current_img.set_alpha(255)
-                elif hungerAction:
-                    # carrot_small.set_alpha(255)
-                    current_img = tama_pet_eat_small
-                    current_img.set_alpha(255)
-                    hungerAction = False
-                # if sleep button was pressed, display animation on image switch
-                elif sleepAction:
-                    current_img = tama_pet_sleep_small
-                    current_img.set_alpha(255)
-                    sleepAction = False
-                # if brush button was pressed, display animation on image switch
-                elif brushAction:
-                    current_img = tama_pet_brush_small
-                    current_img.set_alpha(255)
-                    brushAction = False
-                # if play button was pressed, display animation on image switch
-                elif playAction:
-                    current_img = tama_pet_play_small
-                    current_img.set_alpha(255)
-                    playAction = False
-                # else, flip...
-                elif current_img == tama_pet_small:
-                    current_img = tama_pet1_small
-                    current_img.set_alpha(255)
-                # flop
-                else:
-                    current_img = tama_pet_small
-                    current_img.set_alpha(255)
+                changeImg(tama, *pet_imgs)
+            # updates the hunger bar to decrease by 5% every speed/1000 seconds
+            if event.type == DECREASEhealth:
+                if tama.hunger > 0:
+                    tama.hunger -= .05
+                if tama.sleep > 0:
+                    tama.sleep -= .05
+                if tama.play > 0:
+                    tama.play -= .05
+                if tama.brush > 0:
+                    tama.brush -= .05
             # handles if button is clicked
             if event.type == pygame.MOUSEBUTTONUP:
                 # move select left
                 if 165 <= event.pos[0] <= 235 and 500 <= event.pos[1] <= 570:
                     shift_select('left')
-                # do action of selected function
-                elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570:
+                # do action of selected function. Won't allow if pet is dead
+                elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570 and not(tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
                     # reset alternate img timer to 0 to display care action for correct time.
                     pygame.time.set_timer(ALTERNATEimg, 1250)
                     if selected == 45:
-                        hungerAction = True
+                        actionQueue.append(PetAction.hunger)
                         tama.hunger = 100
                     elif selected == 245:
-                        sleepAction = True
+                        actionQueue.append(PetAction.sleep)
                         tama.sleep = 100
                     elif selected == 445:
-                        brushAction = True
+                        actionQueue.append(PetAction.brush)
                         tama.brush = 100
                     else:
-                        playAction = True
+                        actionQueue.append(PetAction.play)
                         tama.play = 100
                 # move select right
                 elif 565 <= event.pos[0] <= 635 and 500 <= event.pos[1] <= 570:
@@ -146,7 +180,6 @@ def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama
         brush(brush_small, 460, 60)
         ball(ball_small, 660, 60)
         selector(select_small, selected, 33)
-        # display_carrot(carrot_small, 325, 365)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
@@ -174,16 +207,6 @@ def run_game(tamaData, tama_pet_small, tama_pet1_small, tama_pet_eat_small, tama
 
         # Health bar display
         health_bars(tama.hunger, tama.sleep, tama.brush, tama.play)
-
-        # updates the hunger bar to decrease by 5% every second
-        if tama.hunger > 0:
-            tama.hunger -= .05
-        if tama.sleep > 0:
-            tama.sleep -= .05
-        if tama.play > 0:
-            tama.play -= .05
-        if tama.brush > 0:
-            tama.brush -= .05
 
         # update display, set fps to 60
         pygame.display.update()
@@ -215,7 +238,7 @@ def selector(p, x, y):
     return display.blit(p, (x, y))
 
 
-# Displays buttons
+# Display buttons
 def button(x, y, r, ic, ac, action=None):
     mouse = pygame.mouse.get_pos()
 
@@ -292,7 +315,7 @@ def inGameMenufn(tama):
     # Supporting in game menu functions
     # Options menu function
     def optionsMenufn():
-        pygame_menu.events.EXIT
+        #pygame_menu.events.EXIT
         optionsMenu = pygame_menu.Menu('options', display_width, display_height,
                                        theme=pygame_menu.themes.THEME_SOLARIZED)
 
@@ -304,7 +327,7 @@ def inGameMenufn(tama):
 
     # help menu function
     def helpMenufn():
-        pygame_menu.events.EXIT
+       # pygame_menu.events.EXIT
         helpMenu = pygame_menu.Menu('Help', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
         helpMenu.add.label("Instructions Here")
@@ -333,7 +356,7 @@ def inGameMenufn(tama):
                 # create the new save in the save folder
                 filename = "SS1." + name + '.txt'
                 with open(os.path.join(path, filename), 'w') as temp_file:
-                    temp_file.write(tama.toString())
+                    temp_file.write(tama.toString() + ' ' + str(datetime.datetime.now().timestamp()))
 
             # save to slot 2
             if slot == '2':
@@ -343,7 +366,7 @@ def inGameMenufn(tama):
                     # create the new save in the save folder
                 filename = "SS2." + name + '.txt'
                 with open(os.path.join(path, filename), 'w') as temp_file:
-                    temp_file.write(tama.toString())
+                    temp_file.write(tama.toString() + ' ' + str(datetime.datetime.now().timestamp()))
 
             # save to slot 3
             if slot == '3':
@@ -353,13 +376,12 @@ def inGameMenufn(tama):
                     # create the new save in the save folder
                 filename = "SS3." + name + '.txt'
                 with open(os.path.join(path, filename), 'w') as temp_file:
-                    temp_file.write(tama.toString())
+                    temp_file.write(tama.toString() + ' ' + str(datetime.datetime.now().timestamp()))
 
             # return to the in game menu
             inGameMenufn(tama)
 
-        # mak the save menu
-        pygame_menu.events.EXIT
+        # make the save menu
         saveMenu = pygame_menu.Menu('Save', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
         # does the game_saves folder exist? if no, make one.
@@ -393,10 +415,9 @@ def inGameMenufn(tama):
     # return back to game (does not run in background)
     def backfn():
         data = tama.toString().split()
-        run_game(data, *get_images(data[6]))
+        run_game(data, get_images(data[6])[0])
 
     # Make in game menu buttons
-    pygame_menu.events.EXIT
     inGameMenu = pygame_menu.Menu('Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
     inGameMenu.add.vertical_margin(20)
@@ -410,6 +431,20 @@ def inGameMenufn(tama):
 
     inGameMenu.mainloop(display)
 
+def calcNewData(data):
+    old = datetime.datetime.fromtimestamp(float(data[7]))
+    new = datetime.datetime.now()
+    tdelta = (new - old).total_seconds()
+    print(tdelta)
+    subtractor = tdelta * (1/(speed/50))
+    print(subtractor)
+    for i in range(4):
+        if int(data[i + 2]) - subtractor < 0:
+            data[i + 2] = '0'
+        else:
+            data[i + 2] = str(int(int(data[i + 2]) - subtractor))
+    print(data)
+    return data
 
 def menu():
     # Supporting main menu functions
@@ -421,9 +456,8 @@ def menu():
             name = 'Tamagotchi'
         if data is None:
             data = [name, 0, 100, 100, 100, 100, current_pet]
-        pygame_menu.events.EXIT
         pet_imgs = get_images(data[6])
-        run_game(data, *pet_imgs)
+        run_game(data, pet_imgs[0])
 
     # read data from save 1 and run game with those data values
     def initializeSave1():
@@ -431,6 +465,7 @@ def menu():
         fileName = path + os.listdir("./game_saves")[0]
         save = open(fileName, 'r', encoding='utf8')
         data = save.readline().split()
+        data = calcNewData(data)
         save.close()
         new_game(data)
 
@@ -440,6 +475,7 @@ def menu():
         fileName = path + os.listdir("./game_saves")[1]
         save = open(fileName, 'r', encoding='utf8')
         data = save.readline().split()
+        data = calcNewData(data)
         save.close()
         new_game(data)
 
@@ -449,13 +485,13 @@ def menu():
         fileName = path + os.listdir("./game_saves")[2]
         save = open(fileName, 'r', encoding='utf8')
         data = save.readline().split()
+        data = calcNewData(data)
         save.close()
         new_game(data)
 
     # do if load game button is pressed
     def load_game():
         # get rid of main menu
-        pygame_menu.events.EXIT
         # set up new level select menu
         level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height,
                                         theme=pygame_menu.themes.THEME_SOLARIZED)
@@ -481,7 +517,6 @@ def menu():
         level_select.mainloop(display)
 
     def select_pet():
-        pygame_menu.events.EXIT
         global current_pet
         current_pet = 'bunny'
         # set up pet select menu
@@ -513,7 +548,6 @@ def menu():
         current_pet = selection
 
     # SET UP MAIN MENU
-    pygame_menu.events.EXIT
     menu = pygame_menu.Menu('Main Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
     menu.add.image('./ascii_logo_noBackground.png')
