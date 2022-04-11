@@ -14,7 +14,6 @@ current_pet = 'bunny'
 actionQueue = []
 speed = 20
 
-
 def main():
     pygame.init()
     menu()
@@ -113,11 +112,6 @@ def run_game(tamaData, tama_pet_small):
     display.fill(sky_blue)
     pet(current_img, display_width * .27, display_height * .27)
     pygame.display.update()
-
-    # tama.play = 5
-    # tama.sleep = 5
-    # tama.brush = 5
-    # tama.hunger = 5
 
     # while game not exited
     while not crashed:
@@ -236,7 +230,6 @@ def ball(p, x, y):
 
 def selector(p, x, y):
     return display.blit(p, (x, y))
-
 
 # Display buttons
 def button(x, y, r, ic, ac, action=None):
@@ -435,15 +428,12 @@ def calcNewData(data):
     old = datetime.datetime.fromtimestamp(float(data[7]))
     new = datetime.datetime.now()
     tdelta = (new - old).total_seconds()
-    print(tdelta)
     subtractor = tdelta * (1/(speed/50))
-    print(subtractor)
     for i in range(4):
         if int(data[i + 2]) - subtractor < 0:
             data[i + 2] = '0'
         else:
             data[i + 2] = str(int(int(data[i + 2]) - subtractor))
-    print(data)
     return data
 
 def menu():
