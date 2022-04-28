@@ -1,3 +1,5 @@
+import subprocess
+import sys
 import time
 
 import pygame
@@ -11,11 +13,13 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
 current_img = None
 current_pet = 'bunny'
+petNameAge = ''
+petNameAgeRect = None
 actionQueue = []
 speed = 20
+DEAD = pygame.USEREVENT +4
 
 def main():
-    pygame.init()
     menu()
 
 class Pet:
@@ -46,6 +50,7 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
     if tama.hunger + tama.play + tama.brush + tama.sleep <= 0:
         current_img = tama_pet_dead_small
         current_img.set_alpha(255)
+        pygame.time.set_timer(DEAD, 1)
 
     # if health < 25, set pet to sick
     elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
@@ -90,25 +95,47 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
         current_img = tama_pet_small
         current_img.set_alpha(255)
 
+
+def displayNameAge(tama):
+    # display tama name and age
+    global petNameAge
+    global petNameAgeRect
+    font_name = pygame.font.Font('PixeloidSans.ttf', 25)
+    petNameAge = font_name.render(tama.name + '\'s age: ' + str(tama.age), True, black, sky_blue)
+    if petNameAge.get_width() < 289:
+        petNameAgeRect = petNameAge.get_rect()
+        petNameAgeRect.center = (display_width - petNameAge.get_width() / 2 - 10, petNameAge.get_height() / 2 + 5)
+    else:
+        petNameAge = font_name.render('Pets\'s age: ' + str(tama.age), True, black, sky_blue)
+        petNameAgeRect = petNameAge.get_rect()
+        petNameAgeRect.center = (display_width - petNameAge.get_width() / 2 - 10, petNameAge.get_height() / 2 + 5)
+
+
 def run_game(tamaData, tama_pet_small):
     # flag to see if player exited
     crashed = False
 
     # create tama instance
+    tama = None
     tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]), int(tamaData[5]),
                tamaData[6])
 
     # setup for pet frame alternation every second
     pet_imgs = get_images(tamaData[6])
     global current_img
+    global speed
+    global selected
+    global petNameAge
+    global petNameAgeRect
     current_img = tama_pet_small
     ALTERNATEimg = pygame.USEREVENT + 1
     INCREASEage = pygame.USEREVENT + 2
     DECREASEhealth = pygame.USEREVENT + 3
     pygame.time.set_timer(ALTERNATEimg, 1250)
-    pygame.time.set_timer(INCREASEage, 10000)
+    pygame.time.set_timer(INCREASEage, int(speed * 50))
     pygame.time.set_timer(DECREASEhealth, speed)
 
+    displayNameAge(tama)
     display.fill(sky_blue)
     pet(current_img, display_width * .27, display_height * .27)
     pygame.display.update()
@@ -116,6 +143,7 @@ def run_game(tamaData, tama_pet_small):
     # while game not exited
     while not crashed:
         # event handler
+
         for event in pygame.event.get():
             # exit if x pressed
             if event.type == pygame.QUIT:
@@ -162,7 +190,14 @@ def run_game(tamaData, tama_pet_small):
                     inGameMenufn(tama)
             # increase Tama age every 10 seconds
             if event.type == INCREASEage:
-                tama.age += 1
+                if not(tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
+                    tama.age += 1
+                displayNameAge(tama)
+            if event.type == DEAD:
+                time.sleep(3)
+                gameOverMenu(tama)
+
+
 
         # display background and pet
         display.fill(sky_blue)
@@ -192,15 +227,13 @@ def run_game(tamaData, tama_pet_small):
         textRect_menu.center = (62, 16)
         display.blit(text_menu, textRect_menu)
 
-        # display tama name
-        font_name = pygame.font.Font('PixeloidSans.ttf', 25)
-        text_name = font_name.render(tama.name, True, black, sky_blue)
-        textRect_name = text_name.get_rect()
-        textRect_name.center = (display_width - text_name.get_width() / 2 - 10, text_name.get_height() / 2 + 5)
-        display.blit(text_name, textRect_name)
+        display.blit(petNameAge, petNameAgeRect)
 
         # Health bar display
         health_bars(tama.hunger, tama.sleep, tama.brush, tama.play)
+
+
+
 
         # update display, set fps to 60
         pygame.display.update()
@@ -302,6 +335,22 @@ def get_images(pet_type):
         pet_imgs.append(tama_cat_dead_small)
     return pet_imgs
 
+def gameOverMenu(tama):
+    # return to main menu
+    def exitfn():
+        main()
+
+    # Make in game menu buttons
+    goMenu = pygame_menu.Menu('End of Game', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+
+    goMenu.add.image('./ascii_GameOver_noBack.png')
+
+    goMenu.add.vertical_margin(10)
+    goMenu.add.label(tama.name + '\'s age: ' + str(tama.age))
+    goMenu.add.vertical_margin(150)
+    goMenu.add.button('Exit to Main Menu', exitfn)
+
+    goMenu.mainloop(display)
 
 # in game menu function
 def inGameMenufn(tama):
@@ -425,10 +474,18 @@ def inGameMenufn(tama):
     inGameMenu.mainloop(display)
 
 def calcNewData(data):
+    # get time when save was made
     old = datetime.datetime.fromtimestamp(float(data[7]))
+    # get current time
     new = datetime.datetime.now()
+    #get time difference
     tdelta = (new - old).total_seconds()
+    # **global speed var = # of milliseconds/action
+    # why 50 not 500? (should be 500 b/c ((# of milliseconds/action) / 1000) = # of actions/second  &
+    # (1 / (# actions/second)) = # seconds/action  &  (time between saves) * (# seconds/action) = # of actions
+    # **500 b/c divide 1000 in half since its only -.5 health per second, not 1
     subtractor = tdelta * (1/(speed/50))
+    # set to 0 if new data < 0, otherwise set data
     for i in range(4):
         if int(data[i + 2]) - subtractor < 0:
             data[i + 2] = '0'
@@ -640,4 +697,5 @@ if __name__ == '__main__':
     select_tr = pygame.image.load('select_tr.png')
     select_small = pygame.transform.scale(select_tr, (110, 110))
 
+    pygame.init()
     main()
