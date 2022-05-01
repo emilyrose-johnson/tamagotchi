@@ -17,7 +17,7 @@ petNameAge = ''
 petNameAgeRect = None
 actionQueue = []
 speed = 20
-DEAD = pygame.USEREVENT +4
+DEAD = pygame.USEREVENT + 4
 
 def main():
     menu()
@@ -50,7 +50,7 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
     if tama.hunger + tama.play + tama.brush + tama.sleep <= 0:
         current_img = tama_pet_dead_small
         current_img.set_alpha(255)
-        pygame.time.set_timer(DEAD, 1)
+        pygame.time.set_timer(DEAD, 1, True)
 
     # if health < 25, set pet to sick
     elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
@@ -198,7 +198,6 @@ def run_game(tamaData, tama_pet_small):
                 gameOverMenu(tama)
 
 
-
         # display background and pet
         display.fill(sky_blue)
         pet(current_img, display_width * .27, display_height * .27)
@@ -231,8 +230,6 @@ def run_game(tamaData, tama_pet_small):
 
         # Health bar display
         health_bars(tama.hunger, tama.sleep, tama.brush, tama.play)
-
-
 
 
         # update display, set fps to 60
@@ -478,7 +475,7 @@ def calcNewData(data):
     old = datetime.datetime.fromtimestamp(float(data[7]))
     # get current time
     new = datetime.datetime.now()
-    #get time difference
+    # get time difference
     tdelta = (new - old).total_seconds()
     # **global speed var = # of milliseconds/action
     # why 50 not 500? (should be 500 b/c ((# of milliseconds/action) / 1000) = # of actions/second  &
