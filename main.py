@@ -1,5 +1,3 @@
-import subprocess
-import sys
 import time
 
 import pygame
@@ -7,7 +5,6 @@ import pygame_menu
 import os
 import enum
 import datetime
-import re
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 selected = 45
@@ -19,8 +16,10 @@ actionQueue = []
 speed = 20
 DEAD = pygame.USEREVENT + 4
 
+
 def main():
     menu()
+
 
 class Pet:
     def __init__(self, tamaName, tamaAge, tamaHunger, tamaSleep, tamaBrush, tamaPlay, pet_img):
@@ -36,14 +35,17 @@ class Pet:
         return str(self.name) + " " + str(int(self.age)) + " " + str(int(self.hunger)) + " " + str(int(self.sleep)) + \
                " " + str(int(self.brush)) + " " + str(int(self.play)) + " " + str(self.pet_img)
 
+
 class PetAction(enum.Enum):
     hunger = 1
     brush = 2
     sleep = 3
     play = 4
 
+
 def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
-            tama_pet_sleep_small, tama_pet_brush_small, tama_pet_play_small, tama_pet_sick_small, tama_pet_sick1_small, tama_pet_dead_small):
+              tama_pet_sleep_small, tama_pet_brush_small, tama_pet_play_small, tama_pet_sick_small,
+              tama_pet_sick1_small, tama_pet_dead_small):
     global current_img
     current_img.set_alpha(0)
     # if health is 0, set pet to dead
@@ -137,7 +139,7 @@ def run_game(tamaData, tama_pet_small):
 
     displayNameAge(tama)
     display.fill(sky_blue)
-    pet(current_img, display_width * .27, display_height * .27)
+    display_img(current_img, display_width * .27, display_height * .27)
     pygame.display.update()
 
     # while game not exited
@@ -167,7 +169,8 @@ def run_game(tamaData, tama_pet_small):
                 if 165 <= event.pos[0] <= 235 and 500 <= event.pos[1] <= 570:
                     shift_select('left')
                 # do action of selected function. Won't allow if pet is dead
-                elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570 and not(tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
+                elif 365 <= event.pos[0] <= 435 and 500 <= event.pos[1] <= 570 and not (
+                        tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
                     # reset alternate img timer to 0 to display care action for correct time.
                     pygame.time.set_timer(ALTERNATEimg, 1250)
                     if selected == 45:
@@ -190,24 +193,23 @@ def run_game(tamaData, tama_pet_small):
                     inGameMenufn(tama)
             # increase Tama age every 10 seconds
             if event.type == INCREASEage:
-                if not(tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
+                if not (tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
                     tama.age += 1
                 displayNameAge(tama)
             if event.type == DEAD:
                 time.sleep(3)
                 gameOverMenu(tama)
 
-
         # display background and pet
         display.fill(sky_blue)
-        pet(current_img, display_width * .27, display_height * .27)
+        display_img(current_img, display_width * .27, display_height * .27)
 
         # display care function icons
-        eat(eat_small, 45, 60)
-        sleep(sleep_small, 260, 60)
-        brush(brush_small, 460, 60)
-        ball(ball_small, 660, 60)
-        selector(select_small, selected, 33)
+        display_img(eat_small, 45, 60)
+        display_img(sleep_small, 260, 60)
+        display_img(brush_small, 460, 60)
+        display_img(ball_small, 660, 60)
+        display_img(select_small, selected, 33)
 
         # button display, top is white circle, bottom is black outline
         # params are display, color, position, radius, width for black outline
@@ -231,7 +233,6 @@ def run_game(tamaData, tama_pet_small):
         # Health bar display
         health_bars(tama.hunger, tama.sleep, tama.brush, tama.play)
 
-
         # update display, set fps to 60
         pygame.display.update()
         clock.tick(60)
@@ -241,25 +242,10 @@ def run_game(tamaData, tama_pet_small):
     quit()
 
 
-# displays tamagotchi pet image. params are image and position
-def pet(p, x, y):
+# display images. params are image and position
+def display_img(p, x, y):
     display.blit(p, (x, y))
 
-# displays care functions, params are image and position
-def eat(p, x, y):
-    display.blit(p, (x, y))
-
-def sleep(p, x, y):
-    display.blit(p, (x, y))
-
-def brush(p, x, y):
-    display.blit(p, (x, y))
-
-def ball(p, x, y):
-    display.blit(p, (x, y))
-
-def selector(p, x, y):
-    return display.blit(p, (x, y))
 
 # Display buttons
 def button(x, y, r, ic, ac, action=None):
@@ -332,6 +318,7 @@ def get_images(pet_type):
         pet_imgs.append(tama_cat_dead_small)
     return pet_imgs
 
+
 def gameOverMenu(tama):
     # return to main menu
     def exitfn():
@@ -349,29 +336,38 @@ def gameOverMenu(tama):
 
     goMenu.mainloop(display)
 
+
 # in game menu function
 def inGameMenufn(tama):
     # Supporting in game menu functions
     # Options menu function
     def optionsMenufn():
-        #pygame_menu.events.EXIT
         optionsMenu = pygame_menu.Menu('options', display_width, display_height,
                                        theme=pygame_menu.themes.THEME_SOLARIZED)
 
+        def back():
+            optionsMenu.disable()
+
         optionsMenu.add.label("Options")
         optionsMenu.add.vertical_margin(20)
-        optionsMenu.add.button('Back', inGameMenu)
+        optionsMenu.add.button('Back', back)
 
         optionsMenu.mainloop(display)
 
     # help menu function
     def helpMenufn():
-       # pygame_menu.events.EXIT
         helpMenu = pygame_menu.Menu('Help', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
 
-        helpMenu.add.label("Instructions Here")
+        def back():
+            helpMenu.disable()
+
+        helpMenu.add.label("As your pet ages, their needs will need to be met to\n keep them healthy."
+                           " Make sure you check on your pet\n often to ensure their survival!\n"
+                           "To care for your pet, when you notice the health bar\n"
+                           "for a need going down, use the center button to raise\n"
+                           "that need!")
         helpMenu.add.vertical_margin(20)
-        helpMenu.add.button('Back', inGameMenu)
+        helpMenu.add.button('Back', back)
 
         helpMenu.mainloop(display)
 
@@ -442,8 +438,11 @@ def inGameMenufn(tama):
         textInp = saveMenu.add.text_input("Save Name: ", tama.name)
         saveMenu.add.button("Save", save)
 
+        def back():
+            saveMenu.disable()
+
         saveMenu.add.vertical_margin(30)
-        saveMenu.add.button('Back', inGameMenu)
+        saveMenu.add.button('Back', back)
 
         saveMenu.mainloop(display)
 
@@ -453,8 +452,7 @@ def inGameMenufn(tama):
 
     # return back to game (does not run in background)
     def backfn():
-        data = tama.toString().split()
-        run_game(data, get_images(data[6])[0])
+        inGameMenu.disable()
 
     # Make in game menu buttons
     inGameMenu = pygame_menu.Menu('Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
@@ -470,6 +468,7 @@ def inGameMenufn(tama):
 
     inGameMenu.mainloop(display)
 
+
 def calcNewData(data):
     # get time when save was made
     old = datetime.datetime.fromtimestamp(float(data[7]))
@@ -481,7 +480,7 @@ def calcNewData(data):
     # why 50 not 500? (should be 500 b/c ((# of milliseconds/action) / 1000) = # of actions/second  &
     # (1 / (# actions/second)) = # seconds/action  &  (time between saves) * (# seconds/action) = # of actions
     # **500 b/c divide 1000 in half since its only -.5 health per second, not 1
-    subtractor = tdelta * (1/(speed/50))
+    subtractor = tdelta * (1 / (speed / 50))
     # set to 0 if new data < 0, otherwise set data
     for i in range(4):
         if int(data[i + 2]) - subtractor < 0:
@@ -489,6 +488,7 @@ def calcNewData(data):
         else:
             data[i + 2] = str(int(int(data[i + 2]) - subtractor))
     return data
+
 
 def menu():
     # Supporting main menu functions
@@ -555,9 +555,12 @@ def menu():
         if len(saves) >= 3:
             level_select.add.button("Slot 3: " + saves[2].split('.')[1], initializeSave3)
 
+        def back():
+            level_select.disable()
+
         # add back button
         level_select.add.vertical_margin(20)
-        level_select.add.button('Back', menu)
+        level_select.add.button('Back', back)
         level_select.mainloop(display)
 
     def select_pet():
@@ -638,7 +641,6 @@ if __name__ == '__main__':
     tama_fox_dead = pygame.image.load('Fox-dead.png')
     tama_fox_dead_small = pygame.transform.scale(tama_fox_dead, (350, 400))
 
-
     tama_bunny = pygame.image.load('tamarabbit.png')
     tama_bunny_small = pygame.transform.scale(tama_bunny, (350, 350))
     tama_bunny1 = pygame.image.load('tamarabbit1.png')
@@ -676,7 +678,6 @@ if __name__ == '__main__':
     tama_cat_sick2_small = pygame.transform.scale(tama_cat_sick2, (350, 350))
     tama_cat_dead = pygame.image.load('cat_dead.png')
     tama_cat_dead_small = pygame.transform.scale(tama_cat_dead, (350, 350))
-
 
     # load care images and resize
     eat_pic = pygame.image.load('eat.png')
