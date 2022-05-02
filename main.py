@@ -1,5 +1,4 @@
 import time
-
 import pygame
 import pygame_menu
 import os
@@ -43,9 +42,10 @@ class PetAction(enum.Enum):
     play = 4
 
 
+# Handles all changes in image animations
 def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
-              tama_pet_sleep_small, tama_pet_brush_small, tama_pet_play_small, tama_pet_sick_small,
-              tama_pet_sick1_small, tama_pet_dead_small):
+              tama_pet_sleep_small, tama_pet_brush_small, tama_pet_play_small,
+              tama_pet_sick_small, tama_pet_sick1_small, tama_pet_dead_small):
     global current_img
     current_img.set_alpha(0)
     # if health is 0, set pet to dead
@@ -54,7 +54,7 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
         current_img.set_alpha(255)
         pygame.time.set_timer(DEAD, 1, True)
 
-    # if health < 25, set pet to sick
+    # if health < 25%, set pet to sick
     elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
         if current_img == tama_pet_small:
             current_img = tama_pet_sick1_small
@@ -98,8 +98,8 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
         current_img.set_alpha(255)
 
 
+# display tama name and age
 def displayNameAge(tama):
-    # display tama name and age
     global petNameAge
     global petNameAgeRect
     font_name = pygame.font.Font('PixeloidSans.ttf', 25)
@@ -119,8 +119,8 @@ def run_game(tamaData, tama_pet_small):
 
     # create tama instance
     tama = None
-    tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]), int(tamaData[5]),
-               tamaData[6])
+    tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]),
+               int(tamaData[5]), tamaData[6])
 
     # setup for pet frame alternation every second
     pet_imgs = get_images(tamaData[6])
@@ -145,7 +145,6 @@ def run_game(tamaData, tama_pet_small):
     # while game not exited
     while not crashed:
         # event handler
-
         for event in pygame.event.get():
             # exit if x pressed
             if event.type == pygame.QUIT:
@@ -191,7 +190,8 @@ def run_game(tamaData, tama_pet_small):
                 # Menu Button
                 elif 0 <= event.pos[0] <= 124 and 0 <= event.pos[1] <= 29:
                     inGameMenufn(tama)
-            # increase Tama age every 10 seconds
+
+            # increase Tama age based on speed
             if event.type == INCREASEage:
                 if not (tama.hunger + tama.play + tama.brush + tama.sleep <= 0):
                     tama.age += 1
@@ -211,8 +211,7 @@ def run_game(tamaData, tama_pet_small):
         display_img(ball_small, 660, 60)
         display_img(select_small, selected, 33)
 
-        # button display, top is white circle, bottom is black outline
-        # params are display, color, position, radius, width for black outline
+        # display buttons
         button(200, 530, 35, grey, white, action="left")
         button(400, 530, 35, grey, white, action="middle")
         button(600, 530, 35, grey, white, action="right")
@@ -228,6 +227,7 @@ def run_game(tamaData, tama_pet_small):
         textRect_menu.center = (62, 16)
         display.blit(text_menu, textRect_menu)
 
+        # display pet name and age
         display.blit(petNameAge, petNameAgeRect)
 
         # Health bar display
@@ -247,7 +247,7 @@ def display_img(p, x, y):
     display.blit(p, (x, y))
 
 
-# Display buttons
+# Display buttons, params are position, inactive color, active color and action
 def button(x, y, r, ic, ac, action=None):
     mouse = pygame.mouse.get_pos()
 
@@ -270,6 +270,7 @@ def health_bars(h, s, b, p):
     pygame.draw.rect(display, black, (650, 140, p, 10))
 
 
+# moved square select icon
 def shift_select(direc):
     global selected
     if direc == 'left' and selected == 45:
@@ -282,6 +283,7 @@ def shift_select(direc):
         selected += 200
 
 
+# creates list of selected pet images
 def get_images(pet_type):
     pet_imgs = []
     if pet_type == 'bunny':
@@ -324,8 +326,13 @@ def gameOverMenu(tama):
     def exitfn():
         main()
 
+    # create theme color
+    mytheme = pygame_menu.themes.THEME_BLUE.copy()
+    mytheme.widget_font_color = (78, 23, 159)
+    mytheme.background_color = sky_blue
+
     # Make in game menu buttons
-    goMenu = pygame_menu.Menu('End of Game', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+    goMenu = pygame_menu.Menu('End of Game', display_width, display_height, theme=mytheme)
 
     goMenu.add.image('./ascii_GameOver_noBack.png')
 
@@ -339,16 +346,19 @@ def gameOverMenu(tama):
 
 # in game menu function
 def inGameMenufn(tama):
-    # Supporting in game menu functions
+    # create theme color
+    mytheme = pygame_menu.themes.THEME_BLUE.copy()
+    mytheme.widget_font_color = (78, 23, 159)
+    mytheme.background_color = sky_blue
+
     # Options menu function
     def optionsMenufn():
-        optionsMenu = pygame_menu.Menu('options', display_width, display_height,
-                                       theme=pygame_menu.themes.THEME_SOLARIZED)
+        optionsMenu = pygame_menu.Menu('Options', display_width, display_height, theme=mytheme)
 
         def back():
             optionsMenu.disable()
 
-        optionsMenu.add.label("Options")
+        optionsMenu.add.label("The only option is whether or not to keep your pet alive")
         optionsMenu.add.vertical_margin(20)
         optionsMenu.add.button('Back', back)
 
@@ -356,7 +366,7 @@ def inGameMenufn(tama):
 
     # help menu function
     def helpMenufn():
-        helpMenu = pygame_menu.Menu('Help', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+        helpMenu = pygame_menu.Menu('Help', display_width, display_height, theme=mytheme)
 
         def back():
             helpMenu.disable()
@@ -417,7 +427,7 @@ def inGameMenufn(tama):
             inGameMenufn(tama)
 
         # make the save menu
-        saveMenu = pygame_menu.Menu('Save', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+        saveMenu = pygame_menu.Menu('Save', display_width, display_height, theme=mytheme)
 
         # does the game_saves folder exist? if no, make one.
         saveMenu.add.label("Current Saves")
@@ -455,7 +465,7 @@ def inGameMenufn(tama):
         inGameMenu.disable()
 
     # Make in game menu buttons
-    inGameMenu = pygame_menu.Menu('Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+    inGameMenu = pygame_menu.Menu('Menu', display_width, display_height, theme=mytheme)
 
     inGameMenu.add.vertical_margin(20)
 
@@ -469,6 +479,7 @@ def inGameMenufn(tama):
     inGameMenu.mainloop(display)
 
 
+# Calculates how much to change the pet's age when opening a saved file
 def calcNewData(data):
     # get time when save was made
     old = datetime.datetime.fromtimestamp(float(data[7]))
@@ -476,6 +487,7 @@ def calcNewData(data):
     new = datetime.datetime.now()
     # get time difference
     tdelta = (new - old).total_seconds()
+
     # **global speed var = # of milliseconds/action
     # why 50 not 500? (should be 500 b/c ((# of milliseconds/action) / 1000) = # of actions/second  &
     # (1 / (# actions/second)) = # seconds/action  &  (time between saves) * (# seconds/action) = # of actions
@@ -490,10 +502,14 @@ def calcNewData(data):
     return data
 
 
+# Main menus before game screen
 def menu():
-    # Supporting main menu functions
-    # do if new game button is pressed (run game with default data values)
+    # create theme color
+    mytheme = pygame_menu.themes.THEME_BLUE.copy()
+    mytheme.widget_font_color = (78, 23, 159)
+    mytheme.background_color = sky_blue
 
+    # do if new game button is pressed (run game with default data values)
     def new_game(data=None):
         name = textinp.get_value()
         if name == '':
@@ -537,8 +553,7 @@ def menu():
     def load_game():
         # get rid of main menu
         # set up new level select menu
-        level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height,
-                                        theme=pygame_menu.themes.THEME_SOLARIZED)
+        level_select = pygame_menu.Menu('Open Saved Game', display_width, display_height, theme=mytheme)
 
         # determine number of saves in the file, make the corresponding number of
         # buttons and assign corresponding initialize fxn to each bttn.
@@ -563,26 +578,28 @@ def menu():
         level_select.add.button('Back', back)
         level_select.mainloop(display)
 
+    # menu to select a pet
     def select_pet():
         global current_pet
         current_pet = 'bunny'
         # set up pet select menu
-        pet_select = pygame_menu.Menu('Select Pet', display_width, display_height,
-                                      theme=pygame_menu.themes.THEME_SOLARIZED)
+        pet_select = pygame_menu.Menu('Select Pet', display_width, display_height, theme=mytheme)
 
-        bunny_img = pet_select.add.image('tamarabbit.png', image_id='bunny', scale=(0.4, 0.4))
-        fox_img = pet_select.add.image('fox-happy1.png', image_id='fox', scale=(0.1, 0.1))
-        cat_img = pet_select.add.image('cat1.png', image_id='cat', scale=(0.4, 0.4))
+        # set up images
+        bunny_img = pet_select.add.image('tamarabbit-crop.png', image_id='bunny', scale=(0.448, 0.448))
+        fox_img = pet_select.add.image('fox-crop.png', image_id='fox', scale=(0.1, 0.1))
+        cat_img = pet_select.add.image('cat-crop.png', image_id='cat', scale=(0.51, 0.51))
         bunny_img.set_border(2, 'black')
         fox_img.set_border(2, 'black')
         cat_img.set_border(2, 'black')
         bunny_img.set_float(origin_position=True)
         fox_img.set_float(origin_position=True)
         cat_img.set_float(origin_position=True)
-        bunny_img.translate(100, 100)
-        fox_img.translate(300, 45)
-        cat_img.translate(500, 110)
+        bunny_img.translate(130, 97)
+        fox_img.translate(325, 97)
+        cat_img.translate(498, 97)
 
+        # set up buttons
         pet_select.add.vertical_margin(300)
         pet_select.add.selector("Select Pet: ", [('Bunny', 'bunny'), ('Fox', 'fox'), ('Cat', 'cat')],
                                 onchange=update_pet)
@@ -595,7 +612,7 @@ def menu():
         current_pet = selection
 
     # SET UP MAIN MENU
-    menu = pygame_menu.Menu('Main Menu', display_width, display_height, theme=pygame_menu.themes.THEME_SOLARIZED)
+    menu = pygame_menu.Menu('Main Menu', display_width, display_height, theme=mytheme)
 
     menu.add.image('./ascii_logo_noBackground.png')
     menu.add.vertical_margin(20)
@@ -608,6 +625,7 @@ def menu():
 
 
 if __name__ == '__main__':
+    # create colors
     sky_blue = (173, 216, 230)
     white = (255, 255, 255)
     black = (0, 0, 0)
@@ -621,7 +639,7 @@ if __name__ == '__main__':
     # running timer since startup. may be useful for saves
     clock = pygame.time.Clock()
 
-    # loading tamagotchi images and resize
+    # loading fox images and resize
     tama_fox = pygame.image.load('Fox-happy1.png')
     tama_fox_small = pygame.transform.scale(tama_fox, (350, 400))
     tama_fox1 = pygame.image.load('Fox-happy2.png')
@@ -641,6 +659,7 @@ if __name__ == '__main__':
     tama_fox_dead = pygame.image.load('Fox-dead.png')
     tama_fox_dead_small = pygame.transform.scale(tama_fox_dead, (350, 400))
 
+    # loading bunny images and resize
     tama_bunny = pygame.image.load('tamarabbit.png')
     tama_bunny_small = pygame.transform.scale(tama_bunny, (350, 350))
     tama_bunny1 = pygame.image.load('tamarabbit1.png')
@@ -660,6 +679,7 @@ if __name__ == '__main__':
     tama_bunny_dead = pygame.image.load('tamarabbit-dead.png')
     tama_bunny_dead_small = pygame.transform.scale(tama_bunny_dead, (350, 350))
 
+    # loading cat images and resize
     tama_cat1 = pygame.image.load('cat1.png')
     tama_cat1_small = pygame.transform.scale(tama_cat1, (350, 350))
     tama_cat2 = pygame.image.load('cat2.png')
