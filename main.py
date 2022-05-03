@@ -149,7 +149,10 @@ def growth(tama):
 def run_game(tamaData, tama_pet_small):
     # flag to see if player exited
     crashed = False
-
+    if tamaData[6] == 'fox':
+        tama_pet_small = pygame.transform.scale(tama_pet_small, (150, 200))
+    else:
+        tama_pet_small = pygame.transform.scale(tama_pet_small, (150, 150))
     # create tama instance
     tama = None
     tama = Pet(tamaData[0], int(tamaData[1]), int(tamaData[2]), int(tamaData[3]), int(tamaData[4]),
@@ -235,7 +238,7 @@ def run_game(tamaData, tama_pet_small):
 
         # display background and pet
         display.fill(sky_blue)
-        display_img(current_img, display_width * .27, display_height * .27)
+        display_img(current_img, display_width * pet_center(tama), display_height * pet_center(tama))
 
         # display care function icons
         display_img(eat_small, 45, 60)
@@ -278,6 +281,15 @@ def run_game(tamaData, tama_pet_small):
 # display images. params are image and position
 def display_img(p, x, y):
     display.blit(p, (x, y))
+
+
+def pet_center(tama):
+    if tama.age <= 15:
+        return .4
+    elif 16 <= tama.age <= 30:
+        return .34
+    else:
+        return .27
 
 
 # Display buttons, params are position, inactive color, active color and action
