@@ -14,6 +14,7 @@ petNameAgeRect = None
 actionQueue = []
 speed = 20
 DEAD = pygame.USEREVENT + 4
+flop = 0
 
 
 def main():
@@ -47,10 +48,12 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
               tama_pet_sleep_small, tama_pet_brush_small, tama_pet_play_small,
               tama_pet_sick_small, tama_pet_sick1_small, tama_pet_dead_small):
     global current_img
+    global flop
     current_img.set_alpha(0)
     # if health is 0, set pet to dead
     if tama.hunger + tama.play + tama.brush + tama.sleep <= 0:
         current_img = tama_pet_dead_small
+        growth(tama)
         current_img.set_alpha(255)
         pygame.time.set_timer(DEAD, 1, True)
 
@@ -58,44 +61,56 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
     elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
         if current_img == tama_pet_small:
             current_img = tama_pet_sick1_small
+            growth(tama)
             current_img.set_alpha(255)
         elif current_img == tama_pet1_small:
             current_img = tama_pet_sick_small
+            growth(tama)
             current_img.set_alpha(255)
         elif current_img == tama_pet_sick_small:
             current_img = tama_pet_sick1_small
+            growth(tama)
             current_img.set_alpha(255)
         else:
             current_img = tama_pet_sick_small
+            growth(tama)
             current_img.set_alpha(255)
     # if hunger button was pressed, display animation on image switch
     elif len(actionQueue) > 0 and actionQueue[0] == PetAction.hunger:
         current_img = tama_pet_eat_small
+        growth(tama)
         current_img.set_alpha(255)
         actionQueue.pop(0)
     # if sleep button was pressed, display animation on image switch
     elif len(actionQueue) > 0 and actionQueue[0] == PetAction.sleep:
         current_img = tama_pet_sleep_small
+        growth(tama)
         current_img.set_alpha(255)
         actionQueue.pop(0)
     # if brush button was pressed, display animation on image switch
     elif len(actionQueue) > 0 and actionQueue[0] == PetAction.brush:
         current_img = tama_pet_brush_small
+        growth(tama)
         current_img.set_alpha(255)
         actionQueue.pop(0)
     # if play button was pressed, display animation on image switch
     elif len(actionQueue) > 0 and actionQueue[0] == PetAction.play:
         current_img = tama_pet_play_small
+        growth(tama)
         current_img.set_alpha(255)
         actionQueue.pop(0)
     # else, flip...
-    elif current_img == tama_pet_small:
+    elif flop == 1:
         current_img = tama_pet1_small
+        growth(tama)
         current_img.set_alpha(255)
+        flop = 0
     # flop
     else:
         current_img = tama_pet_small
+        growth(tama)
         current_img.set_alpha(255)
+        flop = 1
 
 
 # display tama name and age
@@ -111,6 +126,24 @@ def displayNameAge(tama):
         petNameAge = font_name.render('Pets\'s age: ' + str(tama.age), True, black, sky_blue)
         petNameAgeRect = petNameAge.get_rect()
         petNameAgeRect.center = (display_width - petNameAge.get_width() / 2 - 10, petNameAge.get_height() / 2 + 5)
+
+
+def growth(tama):
+    global current_img
+    if tama.pet_img == 'fox':
+        if tama.age <= 15:
+            current_img = pygame.transform.scale(current_img, (150, 200))
+        elif 16 <= tama.age <= 30:
+            current_img = pygame.transform.scale(current_img, (250, 300))
+        else:
+            current_img = pygame.transform.scale(current_img, (350, 400))
+    else:
+        if tama.age <= 15:
+            current_img = pygame.transform.scale(current_img, (150, 150))
+        elif 16 <= tama.age <= 30:
+            current_img = pygame.transform.scale(current_img, (250, 250))
+        else:
+            current_img = pygame.transform.scale(current_img, (350, 350))
 
 
 def run_game(tamaData, tama_pet_small):
