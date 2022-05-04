@@ -12,12 +12,14 @@ current_pet = 'bunny'
 petNameAge = ''
 petNameAgeRect = None
 actionQueue = []
+
+# adjust speed of game
 speed = 10
+
 DEAD = pygame.USEREVENT + 4
 flop = 0
 tamaXPos = 0
 tamaYPos = 0
-
 
 
 def main():
@@ -122,7 +124,7 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
 def displayNameAge(tama):
     global petNameAge
     global petNameAgeRect
-    font_name = pygame.font.Font('PixeloidSans.ttf', 25)
+    font_name = pygame.font.Font('./Fonts/PixeloidSans.ttf', 25)
     petNameAge = font_name.render(tama.name + '\'s age: ' + str(tama.age), True, black, sky_blue)
     if petNameAge.get_width() < 289:
         petNameAgeRect = petNameAge.get_rect()
@@ -281,7 +283,7 @@ def run_game(tamaData, tama_pet_small):
         # draw menu button
         pygame.draw.rect(display, dark_grey, (2, 2, 120, 25))
         # display words "menu"
-        font_menu = pygame.font.Font('PressStart2.ttf', 20)
+        font_menu = pygame.font.Font('./Fonts/PressStart2.ttf', 20)
         text_menu = font_menu.render("MENU", True, black, dark_grey)
         textRect_menu = text_menu.get_rect()
         textRect_menu.center = (62, 16)
@@ -408,7 +410,7 @@ def gameOverMenu(tama):
     # Make in game menu buttons
     goMenu = pygame_menu.Menu('End of Game', display_width, display_height, theme=mytheme)
 
-    goMenu.add.image('./ascii_GameOver_noBack.png')
+    goMenu.add.image('./Images/ascii_GameOver_noBack.png')
 
     goMenu.add.vertical_margin(10)
     goMenu.add.label(tama.name + '\'s age: ' + str(tama.age))
@@ -660,9 +662,9 @@ def menu():
         pet_select = pygame_menu.Menu('Select Pet', display_width, display_height, theme=mytheme)
 
         # set up images
-        bunny_img = pet_select.add.image('tamarabbit-crop.png', image_id='bunny', scale=(0.448, 0.448))
-        fox_img = pet_select.add.image('fox-crop.png', image_id='fox', scale=(0.1, 0.1))
-        cat_img = pet_select.add.image('cat-crop.png', image_id='cat', scale=(0.51, 0.51))
+        bunny_img = pet_select.add.image('./Images/tamarabbit-crop.png', image_id='bunny', scale=(0.448, 0.448))
+        fox_img = pet_select.add.image('./Images/fox-crop.png', image_id='fox', scale=(0.1, 0.1))
+        cat_img = pet_select.add.image('./Images/cat-crop.png', image_id='cat', scale=(0.51, 0.51))
         bunny_img.set_border(2, 'black')
         fox_img.set_border(2, 'black')
         cat_img.set_border(2, 'black')
@@ -688,7 +690,7 @@ def menu():
     # SET UP MAIN MENU
     menu = pygame_menu.Menu('Main Menu', display_width, display_height, theme=mytheme)
 
-    menu.add.image('./ascii_logo_noBackground.png')
+    menu.add.image('./Images/ascii_logo_noBackground.png')
     menu.add.vertical_margin(20)
     textinp = menu.add.text_input('Pet Name:  ')
     menu.add.button('Start New Game', select_pet)
@@ -714,79 +716,79 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
 
     # loading fox images and resize
-    tama_fox = pygame.image.load('Fox-happy1.png')
+    tama_fox = pygame.image.load('./Images/Fox-happy1.png')
     tama_fox_small = pygame.transform.scale(tama_fox, (350, 400))
-    tama_fox1 = pygame.image.load('Fox-happy2.png')
+    tama_fox1 = pygame.image.load('./Images/Fox-happy2.png')
     tama_fox1_small = pygame.transform.scale(tama_fox1, (350, 400))
-    tama_fox_eat = pygame.image.load('Fox-eat.png')
+    tama_fox_eat = pygame.image.load('./Images/Fox-eat.png')
     tama_fox_eat_small = pygame.transform.scale(tama_fox_eat, (350, 400))
-    tama_fox_sleep = pygame.image.load('Fox-sleep.png')
+    tama_fox_sleep = pygame.image.load('./Images/Fox-sleep.png')
     tama_fox_sleep_small = pygame.transform.scale(tama_fox_sleep, (350, 400))
-    tama_fox_brush = pygame.image.load('Fox-brush.png')
+    tama_fox_brush = pygame.image.load('./Images/Fox-brush.png')
     tama_fox_brush_small = pygame.transform.scale(tama_fox_brush, (350, 400))
-    tama_fox_play = pygame.image.load('Fox-play.png')
+    tama_fox_play = pygame.image.load('./Images/Fox-play.png')
     tama_fox_play_small = pygame.transform.scale(tama_fox_play, (350, 400))
-    tama_fox_sick = pygame.image.load('Fox-sad.png')
+    tama_fox_sick = pygame.image.load('./Images/Fox-sad.png')
     tama_fox_sick_small = pygame.transform.scale(tama_fox_sick, (350, 400))
-    tama_fox_sick2 = pygame.image.load('Fox-sad2.png')
+    tama_fox_sick2 = pygame.image.load('./Images/Fox-sad2.png')
     tama_fox_sick2_small = pygame.transform.scale(tama_fox_sick2, (350, 400))
-    tama_fox_dead = pygame.image.load('Fox-dead.png')
+    tama_fox_dead = pygame.image.load('./Images/Fox-dead.png')
     tama_fox_dead_small = pygame.transform.scale(tama_fox_dead, (350, 400))
 
     # loading bunny images and resize
-    tama_bunny = pygame.image.load('tamarabbit.png')
+    tama_bunny = pygame.image.load('./Images/tamarabbit.png')
     tama_bunny_small = pygame.transform.scale(tama_bunny, (350, 350))
-    tama_bunny1 = pygame.image.load('tamarabbit1.png')
+    tama_bunny1 = pygame.image.load('./Images/tamarabbit1.png')
     tama_bunny1_small = pygame.transform.scale(tama_bunny1, (350, 350))
-    tama_bunny_eat = pygame.image.load('tamarabbiteat.png')
+    tama_bunny_eat = pygame.image.load('./Images/tamarabbiteat.png')
     tama_bunny_eat_small = pygame.transform.scale(tama_bunny_eat, (350, 350))
-    tama_bunny_sleep = pygame.image.load('tamarabbitsleep.png')
+    tama_bunny_sleep = pygame.image.load('./Images/tamarabbitsleep.png')
     tama_bunny_sleep_small = pygame.transform.scale(tama_bunny_sleep, (350, 350))
-    tama_bunny_brush = pygame.image.load('tamarabbitbrush.png')
+    tama_bunny_brush = pygame.image.load('./Images/tamarabbitbrush.png')
     tama_bunny_brush_small = pygame.transform.scale(tama_bunny_brush, (350, 350))
-    tama_bunny_play = pygame.image.load('tamarabbitplay.png')
+    tama_bunny_play = pygame.image.load('./Images/tamarabbitplay.png')
     tama_bunny_play_small = pygame.transform.scale(tama_bunny_play, (350, 350))
-    tama_bunny_sick = pygame.image.load('tamarabbit-sad.png')
+    tama_bunny_sick = pygame.image.load('./Images/tamarabbit-sad.png')
     tama_bunny_sick_small = pygame.transform.scale(tama_bunny_sick, (350, 350))
-    tama_bunny_sick1 = pygame.image.load('tamarabbit1-sad.png')
+    tama_bunny_sick1 = pygame.image.load('./Images/tamarabbit1-sad.png')
     tama_bunny_sick1_small = pygame.transform.scale(tama_bunny_sick1, (350, 350))
-    tama_bunny_dead = pygame.image.load('tamarabbit-dead.png')
+    tama_bunny_dead = pygame.image.load('./Images/tamarabbit-dead.png')
     tama_bunny_dead_small = pygame.transform.scale(tama_bunny_dead, (350, 350))
 
     # loading cat images and resize
-    tama_cat1 = pygame.image.load('cat1.png')
+    tama_cat1 = pygame.image.load('./Images/cat1.png')
     tama_cat1_small = pygame.transform.scale(tama_cat1, (350, 350))
-    tama_cat2 = pygame.image.load('cat2.png')
+    tama_cat2 = pygame.image.load('./Images/cat2.png')
     tama_cat2_small = pygame.transform.scale(tama_cat2, (350, 350))
-    tama_cat_eat = pygame.image.load('cat_eat.png')
+    tama_cat_eat = pygame.image.load('./Images/cat_eat.png')
     tama_cat_eat_small = pygame.transform.scale(tama_cat_eat, (350, 350))
-    tama_cat_sleep = pygame.image.load('cat_sleep.png')
+    tama_cat_sleep = pygame.image.load('./Images/cat_sleep.png')
     tama_cat_sleep_small = pygame.transform.scale(tama_cat_sleep, (350, 350))
-    tama_cat_brush = pygame.image.load('cat_brush.png')
+    tama_cat_brush = pygame.image.load('./Images/cat_brush.png')
     tama_cat_brush_small = pygame.transform.scale(tama_cat_brush, (350, 350))
-    tama_cat_play = pygame.image.load('cat_play.png')
+    tama_cat_play = pygame.image.load('./Images/cat_play.png')
     tama_cat_play_small = pygame.transform.scale(tama_cat_play, (525, 325))
-    tama_cat_sick = pygame.image.load('cat_sick1.png')
+    tama_cat_sick = pygame.image.load('./Images/cat_sick1.png')
     tama_cat_sick_small = pygame.transform.scale(tama_cat_sick, (350, 350))
-    tama_cat_sick2 = pygame.image.load('cat_sick2.png')
+    tama_cat_sick2 = pygame.image.load('./Images/cat_sick2.png')
     tama_cat_sick2_small = pygame.transform.scale(tama_cat_sick2, (350, 350))
-    tama_cat_dead = pygame.image.load('cat_dead.png')
+    tama_cat_dead = pygame.image.load('./Images/cat_dead.png')
     tama_cat_dead_small = pygame.transform.scale(tama_cat_dead, (350, 350))
 
     # load care images and resize
-    eat_pic = pygame.image.load('eat.png')
+    eat_pic = pygame.image.load('./Images/eat.png')
     eat_small = pygame.transform.scale(eat_pic, (110, 70))
 
-    sleep_pic = pygame.image.load('sleep.png')
+    sleep_pic = pygame.image.load('./Images/sleep.png')
     sleep_small = pygame.transform.scale(sleep_pic, (80, 70))
 
-    brush_pic = pygame.image.load('brush.png')
+    brush_pic = pygame.image.load('./Images/brush.png')
     brush_small = pygame.transform.scale(brush_pic, (80, 70))
 
-    ball_pic = pygame.image.load('ball.png')
+    ball_pic = pygame.image.load('./Images/ball.png')
     ball_small = pygame.transform.scale(ball_pic, (80, 75))
 
-    select_tr = pygame.image.load('select_tr.png')
+    select_tr = pygame.image.load('./Images/select_tr.png')
     select_small = pygame.transform.scale(select_tr, (110, 110))
 
     pygame.init()
