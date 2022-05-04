@@ -12,9 +12,12 @@ current_pet = 'bunny'
 petNameAge = ''
 petNameAgeRect = None
 actionQueue = []
-speed = 20
+speed = 10
 DEAD = pygame.USEREVENT + 4
 flop = 0
+tamaXPos = 0
+tamaYPos = 0
+
 
 
 def main():
@@ -56,6 +59,7 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
         growth(tama)
         current_img.set_alpha(255)
         pygame.time.set_timer(DEAD, 1, True)
+        updateImgPos(tama)
 
     # if health < 25%, set pet to sick
     elif (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
@@ -69,12 +73,13 @@ def changeImg(tama, tama_pet_small, tama_pet1_small, tama_pet_eat_small,
             current_img.set_alpha(255)
         elif current_img == tama_pet_sick_small:
             current_img = tama_pet_sick1_small
-            growth(tama)
             current_img.set_alpha(255)
+            growth(tama)
         else:
             current_img = tama_pet_sick_small
-            growth(tama)
             current_img.set_alpha(255)
+            growth(tama)
+            
     # if hunger button was pressed, display animation on image switch
     elif len(actionQueue) > 0 and actionQueue[0] == PetAction.hunger:
         current_img = tama_pet_eat_small
@@ -130,27 +135,36 @@ def displayNameAge(tama):
 
 def growth(tama):
     global current_img
-    if tama.pet_img == 'fox':
-        if tama.age <= 15:
-            current_img = pygame.transform.scale(current_img, (150, 200))
-        elif 16 <= tama.age <= 30:
-            current_img = pygame.transform.scale(current_img, (250, 300))
+    updateImgPos(tama)
+    if not (tama.hunger + tama.play + tama.brush + tama.sleep) / 4 <= 25:
+        if tama.pet_img == 'fox':
+            if tama.age <= 15:
+                current_img = pygame.transform.scale(current_img, (150, 171))
+            elif 16 <= tama.age <= 30:
+                current_img = pygame.transform.scale(current_img, (250, 286))
+            else:
+                current_img = pygame.transform.scale(current_img, (350, 400))
+        elif tama.pet_img == 'cat' and len(actionQueue) > 0 and actionQueue[0] == PetAction.play:
+            if tama.age <= 15:
+                current_img = pygame.transform.scale(current_img, (225, 139))
+            elif 16 <= tama.age <= 30:
+                current_img = pygame.transform.scale(current_img, (375, 232))
+            else:
+                current_img = pygame.transform.scale(current_img, (525, 325))
         else:
-            current_img = pygame.transform.scale(current_img, (350, 400))
-    else:
-        if tama.age <= 15:
-            current_img = pygame.transform.scale(current_img, (150, 150))
-        elif 16 <= tama.age <= 30:
-            current_img = pygame.transform.scale(current_img, (250, 250))
-        else:
-            current_img = pygame.transform.scale(current_img, (350, 350))
+            if tama.age <= 15:
+                current_img = pygame.transform.scale(current_img, (150, 150))
+            elif 16 <= tama.age <= 30:
+                current_img = pygame.transform.scale(current_img, (250, 250))
+            else:
+                current_img = pygame.transform.scale(current_img, (350, 350))
 
 
 def run_game(tamaData, tama_pet_small):
     # flag to see if player exited
     crashed = False
     if tamaData[6] == 'fox':
-        tama_pet_small = pygame.transform.scale(tama_pet_small, (150, 200))
+        tama_pet_small = pygame.transform.scale(tama_pet_small, (150, 171))
     else:
         tama_pet_small = pygame.transform.scale(tama_pet_small, (150, 150))
     # create tama instance
@@ -173,10 +187,17 @@ def run_game(tamaData, tama_pet_small):
     pygame.time.set_timer(INCREASEage, int(speed * 50))
     pygame.time.set_timer(DECREASEhealth, speed)
 
+    global tamaXPos
+    global tamaYPos
+    tamaXPos = display_width * .4
+    tamaYPos = display_height * .4
+
     displayNameAge(tama)
     display.fill(sky_blue)
     display_img(current_img, display_width * .27, display_height * .27)
     pygame.display.update()
+
+    count = 0
 
     # while game not exited
     while not crashed:
@@ -238,8 +259,11 @@ def run_game(tamaData, tama_pet_small):
 
         # display background and pet
         display.fill(sky_blue)
-        display_img(current_img, display_width * pet_center(tama), display_height * pet_center(tama))
-
+        display_img(current_img, tamaXPos, tamaYPos)
+        # if count % 5 == 0:
+        #     print(str(display_width * pet_center(tama)) + ' ' + str(display_height * pet_center(tama)))
+        
+        # count += 1
         # display care function icons
         display_img(eat_small, 45, 60)
         display_img(sleep_small, 260, 60)
@@ -283,13 +307,18 @@ def display_img(p, x, y):
     display.blit(p, (x, y))
 
 
-def pet_center(tama):
+def updateImgPos(tama):
+    global tamaXPos
+    global tamaYPos
     if tama.age <= 15:
-        return .4
-    elif 16 <= tama.age <= 30:
-        return .34
+        tamaXPos = display_width * .4
+        tamaYPos = display_height * .4 
+    elif tama.age <= 30:
+        tamaXPos = display_width * .34
+        tamaYPos = display_height * .34 
     else:
-        return .27
+        tamaXPos = display_width * .27
+        tamaYPos = display_height * .27
 
 
 # Display buttons, params are position, inactive color, active color and action
